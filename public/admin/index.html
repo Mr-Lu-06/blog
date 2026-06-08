@@ -4,9 +4,51 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>后台管理</title>
-  <script src="/admin/cms.js"></script>
 </head>
 <body>
-  <script>CMS.init();</script>
+  <script src="/admin/cms.js"></script>
+  <script>
+    CMS.init({
+      config: {
+        backend: { name: 'git-gateway', branch: 'main' },
+        media_folder: 'public/images',
+        public_folder: '/images',
+        locale: 'zh_Hans',
+        collections: [
+          {
+            name: 'diary',
+            label: '日记',
+            folder: 'src/content/diary',
+            create: true,
+            slug: '{{year}}-{{month}}-{{day}}-{{slug}}',
+            fields: [
+              { label: '标题', name: 'title', widget: 'string' },
+              { label: '日期', name: 'date', widget: 'datetime', format: 'YYYY-MM-DD', date_format: 'YYYY-MM-DD', time_format: false },
+              { label: '标签', name: 'tags', widget: 'list', default: [] },
+              { label: '心情', name: 'mood', widget: 'select', options: ['开心', '平静', '期待', '感动', '疲惫', '郁闷'], required: false },
+              { label: '天气', name: 'weather', widget: 'select', options: ['晴天', '多云', '阴天', '小雨', '大雨', '雪天'], required: false },
+              { label: '头图', name: 'featured_image', widget: 'image', required: false },
+              { label: '正文', name: 'body', widget: 'markdown' }
+            ]
+          },
+          {
+            name: 'gallery',
+            label: '相册',
+            folder: 'src/content/gallery',
+            create: true,
+            fields: [
+              { label: '标题', name: 'title', widget: 'string' },
+              { label: '日期', name: 'date', widget: 'datetime', format: 'YYYY-MM-DD', date_format: 'YYYY-MM-DD', time_format: false },
+              { label: '封面图', name: 'cover', widget: 'image', required: false },
+              { label: '照片列表', name: 'photos', widget: 'list', fields: [
+                { label: '照片', name: 'url', widget: 'image' },
+                { label: '说明', name: 'caption', widget: 'string', required: false }
+              ]}
+            ]
+          }
+        ]
+      }
+    });
+  </script>
 </body>
 </html>
