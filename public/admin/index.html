@@ -3,26 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>后台管理 — 我的小窝</title>
-  <!-- Netlify Identity Widget（用于登录） -->
-  <script src="https://cdn.jsdelivr.net/npm/netlify-identity-widget@1.9.2/build/netlify-identity-widget.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/decap-cms@3.0.0/dist/decap-cms.js"></script>
+  <title>后台管理</title>
+  <script src="https://cdn.jsdelivr.net/npm/netlify-cms-app@2.15.72/dist/netlify-cms-app.js"></script>
 </head>
 <body>
   <script>
-    // Netlify Identity: redirect back to admin after login
-    if (window.netlifyIdentity) {
-      window.netlifyIdentity.on('init', function(user) {
-        if (!user) {
-          window.netlifyIdentity.on('login', function() {
-            document.location.href = '/admin/';
-          });
-        }
-      });
-    }
-
-    // Initialize Decap CMS
-    CMS.init();
+    // init will load config.yml automatically from the same directory
+    CMS.init()
   </script>
 </body>
 </html>
