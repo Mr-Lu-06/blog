@@ -5,11 +5,10 @@ backend:
 media_folder: "public/images"
 public_folder: "/images"
 
-site_url: "https://my-blog.netlify.app"
-display_url: "https://my-blog.netlify.app"
-logo_url: "https://my-blog.netlify.app/favicon.svg"
+site_url: "https://mrlublog.netlify.app"
+display_url: "https://mrlublog.netlify.app"
+logo_url: "https://mrlublog.netlify.app/favicon.svg"
 
-local_backend: true
 locale: 'zh_Hans'
 
 collections:

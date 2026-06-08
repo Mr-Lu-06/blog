@@ -3,18 +3,15 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>后台管理 — 我的blog</title>
+  <title>后台管理 — 我的小窝</title>
+  <!-- Netlify Identity Widget（必须，用于登录） -->
+  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  <!-- Decap CMS -->
   <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
-  <style>
-    /* Override Decap CMS style tweaks for Chinese UI */
-    [class*="LoginButton"] {
-      border-radius: 8px !important;
-    }
-  </style>
 </head>
 <body>
   <script>
-    // Initialize Decap CMS
+    // Decap CMS fully initializes after Netlify Identity
     CMS.init();
   </script>
 </body>
