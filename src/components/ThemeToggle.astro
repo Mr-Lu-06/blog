@@ -1,0 +1,53 @@
+<button
+  id="theme-toggle"
+  class="theme-toggle"
+  aria-label="切换主题"
+  title="切换亮色/暗色模式"
+>
+  亮
+</button>
+
+<script>
+  const html = document.documentElement;
+  const btn = document.getElementById('theme-toggle');
+
+  const saved = localStorage.getItem('blog-theme');
+  if (saved) {
+    html.setAttribute('data-theme', saved);
+  } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    html.setAttribute('data-theme', 'dark');
+  }
+
+  const current = html.getAttribute('data-theme');
+  btn.textContent = current === 'dark' ? '暗' : '亮';
+
+  btn.addEventListener('click', () => {
+    const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('blog-theme', next);
+    btn.textContent = next === 'dark' ? '暗' : '亮';
+  });
+</script>
+
+<style>
+  .theme-toggle {
+    background: none;
+    border: 1px solid var(--border-color);
+    border-radius: 50%;
+    width: 38px;
+    height: 38px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+  }
+
+  .theme-toggle:hover {
+    border-color: var(--accent);
+    transform: rotate(15deg);
+  }
+</style>

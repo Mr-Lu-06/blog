@@ -1,0 +1,226 @@
+---
+// ============================================
+// 本地 MP3 播放器配置
+// ============================================
+// 使用方式：
+//   1. 将 mp3 文件 + .lrc 歌词文件放入 public/music/ 目录
+//   2. 在下面 playlist 中添加歌曲（lrc 填文件名即可）
+
+import { readFileSync } from 'fs';
+import { resolve } from 'path';
+
+const musicDir = resolve('public/music');
+
+function loadLrc(filename) {
+  try {
+    return readFileSync(resolve(musicDir, filename), 'utf-8');
+  } catch {
+    return '';
+  }
+}
+
+const playlist = [
+  {
+    name: '富士山下',
+    artist: '陈奕迅',
+    url: '/music/富士山下 - 陈奕迅.mp3',
+    lrc: loadLrc('富士山下 - 陈奕迅.lrc'),
+  },
+  {
+    name: '孤雏',
+    artist: 'AGA',
+    url: '/music/孤雏 - AGA.mp3',
+    lrc: loadLrc('孤雏 - AGA.lrc'),
+  },
+  {
+    name: '十面埋伏',
+    artist: '陈奕迅',
+    url: '/music/十面埋伏 - 陈奕迅.mp3',
+    lrc: loadLrc('十面埋伏 - 陈奕迅.lrc'),
+  },
+  {
+    name: '戒不掉（原声版）',
+    artist: '欧阳耀莹',
+    url: '/music/戒不掉（原声版） - 欧阳耀莹.mp3',
+    lrc: loadLrc('戒不掉（原声版） - 欧阳耀莹.lrc'),
+  },
+];
+---
+
+<div id="music-player" class="music-player" data-playlist={JSON.stringify(playlist)}>
+  <button id="music-toggle" class="music-toggle" title="音乐播放器" aria-label="打开音乐播放器">
+    <span class="music-icon">♪</span>
+  </button>
+  <div id="aplayer-container" class="aplayer-container">
+    <div id="aplayer"></div>
+  </div>
+</div>
+
+<!-- APlayer CDN + 初始化（is:inline 确保同步加载执行） -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer@1.10.1/dist/APlayer.min.css" />
+<script is:inline src="https://cdn.jsdelivr.net/npm/aplayer@1.10.1/dist/APlayer.min.js">
+</script>
+<script is:inline>
+  (function() {
+    var player = document.getElementById('music-player');
+    var data = player.getAttribute('data-playlist');
+    var playlist = JSON.parse(data);
+
+    if (playlist.length > 0) {
+      var ap = new APlayer({
+        container: document.getElementById('aplayer'),
+        fixed: false,
+        mini: false,
+        autoplay: false,
+        theme: '#f0846c',
+        loop: 'all',
+        order: 'random',
+        preload: 'auto',
+        volume: 0.5,
+        mutex: true,
+        listFolded: true,
+        listMaxHeight: '360px',
+        lrcType: 0,
+        audio: playlist,
+      });
+
+      var toggle = document.getElementById('music-toggle');
+      var container = document.getElementById('aplayer-container');
+      var isOpen = false;
+      container.style.display = 'none';
+
+      toggle.addEventListener('click', function() {
+        isOpen = !isOpen;
+        if (isOpen) {
+          container.style.display = 'block';
+          container.style.animation = 'mpSlideUp 0.35s cubic-bezier(0.34, 1.56, 0.64, 1)';
+          toggle.querySelector('.music-icon').textContent = '×';
+          toggle.classList.add('active');
+        } else {
+          container.style.animation = 'mpSlideDown 0.3s ease-in';
+          setTimeout(function() { container.style.display = 'none'; }, 280);
+          toggle.querySelector('.music-icon').textContent = '♪';
+          toggle.classList.remove('active');
+        }
+      });
+    } else {
+      document.getElementById('music-toggle').addEventListener('click', function() {
+        alert('还没有添加歌曲！\n\n1. 把 mp3 文件放入 public/music/\n2. 在 MusicPlayer.astro 的 playlist 中添加歌曲信息');
+      });
+    }
+  })();
+</script>
+
+<style>
+  .music-player {
+    position: fixed;
+    bottom: 32px;
+    right: 32px;
+    z-index: 999;
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: flex-end;
+    gap: 12px;
+  }
+
+  .music-toggle {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: none;
+    background: var(--gradient-warm);
+    color: #fff;
+    font-size: 1.4rem;
+    cursor: pointer;
+    box-shadow: 0 6px 24px rgba(240, 132, 108, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .music-toggle:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 28px rgba(240, 132, 108, 0.5);
+  }
+
+  .music-toggle:active { transform: scale(0.95); }
+
+  .music-toggle.active {
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-color);
+  }
+
+  .aplayer-container {
+    width: 420px;
+    border-radius: var(--radius-lg);
+    overflow: visible;
+    box-shadow: var(--shadow-float);
+    border: 1px solid var(--border-color);
+    background: var(--bg-glass);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+
+  @keyframes mpSlideUp {
+    from { opacity: 0; transform: translateY(20px) scale(0.95); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  @keyframes mpSlideDown {
+    from { opacity: 1; transform: translateY(0) scale(1); }
+    to   { opacity: 0; transform: translateY(20px) scale(0.95); }
+  }
+
+  /* ===== APlayer Theme ===== */
+  .aplayer-container :global(.aplayer) {
+    background: transparent !important;
+    font-family: inherit !important;
+  }
+
+  .aplayer-container :global(.aplayer .aplayer-info) {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .aplayer-container :global(.aplayer .aplayer-info .aplayer-music) {
+    color: var(--text-primary) !important;
+    font-weight: 600;
+  }
+
+  .aplayer-container :global(.aplayer .aplayer-info .aplayer-controller .aplayer-time) {
+    color: var(--text-muted) !important;
+  }
+
+  .aplayer-container :global(.aplayer .aplayer-list) {
+    background: var(--bg-card) !important;
+    max-height: 280px !important;
+  }
+
+  .aplayer-container :global(.aplayer .aplayer-list ol li) {
+    border-top: 1px solid var(--border-color) !important;
+    color: var(--text-secondary) !important;
+    font-size: 0.85rem;
+  }
+
+  .aplayer-container :global(.aplayer .aplayer-list ol li:hover) {
+    background: var(--accent-light) !important;
+  }
+
+  .aplayer-container :global(.aplayer .aplayer-list ol li.aplayer-list-light) {
+    background: var(--accent-soft) !important;
+    color: var(--accent) !important;
+    font-weight: 600;
+  }
+
+  .aplayer-container :global(.aplayer .aplayer-lrc) {
+    display: none;
+  }
+
+  @media (max-width: 480px) {
+    .music-player { bottom: 16px; right: 16px; }
+    .aplayer-container { width: calc(100vw - 40px); max-width: 340px; }
+  }
+</style>

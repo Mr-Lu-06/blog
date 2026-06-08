@@ -1,0 +1,158 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PhotoGrid from '../components/PhotoGrid.astro';
+import Lightbox from '../components/Lightbox.jsx';
+import { sortByDate, formatDate } from '../utils/date';
+
+const galleries = await getCollection('gallery');
+const sorted = sortByDate(galleries);
+---
+
+<BaseLayout title="相册" description="记录生活中的美好瞬间">
+  <div class="container gallery-page">
+    <section class="hero glass">
+      <h1 class="hero-title">相册</h1>
+      <p class="hero-subtitle">用照片记录生活中的美好瞬间</p>
+    </section>
+
+    {sorted.length > 0 ? (
+      <div class="gallery-list">
+        {sorted.map((entry) => (
+          <section class="gallery-section glass">
+            <div class="gallery-section-header">
+              <h2>{entry.data.title}</h2>
+              <time>{formatDate(entry.data.date.toISOString())}</time>
+            </div>
+            <PhotoGrid photos={entry.data.photos || []} />
+          </section>
+        ))}
+      </div>
+    ) : (
+      <div class="empty-state">
+        <span class="empty-icon"></span>
+        <p>还没有相册，去后台创建第一个吧！</p>
+      </div>
+    )}
+  </div>
+</BaseLayout>
+
+<Lightbox client:load />
+
+<style>
+  .gallery-page {
+    padding-top: 24px;
+    padding-bottom: 60px;
+  }
+
+  .hero {
+    position: relative;
+    text-align: center;
+    padding: 40px 20px 36px;
+    border-radius: var(--radius-xl);
+    margin-bottom: 32px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+
+  .hero:hover {
+    box-shadow: var(--shadow-md);
+  }
+
+  .hero-title {
+    font-size: 2.2rem;
+    font-weight: 900;
+    margin-bottom: 8px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .hero-subtitle {
+    font-size: 1.05rem;
+    color: var(--text-secondary);
+    margin: 0;
+    position: relative;
+    z-index: 1;
+  }
+
+  .hero-decoration {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .deco {
+    position: absolute;
+    font-size: 1.8rem;
+    opacity: 0.25;
+    animation: float 6s ease-in-out infinite;
+  }
+  .deco-1 { top: 10%; right: 12%; animation-delay: 0s; }
+  .deco-2 { top: 55%; right: 20%; animation-delay: -2s; font-size: 1.2rem; }
+  .deco-3 { top: 25%; right: 5%; animation-delay: -4s; font-size: 1.4rem; }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+
+  .gallery-list {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+  }
+
+  .gallery-section {
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    transition: all 0.3s ease;
+  }
+
+  .gallery-section:hover {
+    box-shadow: var(--shadow-md);
+  }
+
+  .gallery-section-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .gallery-section-header h2 {
+    font-size: 1.2rem;
+    font-weight: 800;
+    margin: 0;
+  }
+
+  .gallery-section-header time {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    font-weight: 500;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 80px 20px;
+    color: var(--text-secondary);
+  }
+
+  .empty-icon {
+    font-size: 3rem;
+    display: block;
+    margin-bottom: 16px;
+  }
+
+  @media (max-width: 768px) {
+    .hero-title { font-size: 1.8rem; }
+    .gallery-list { gap: 28px; }
+    .gallery-section { padding: 18px; }
+  }
+
+  @media (max-width: 480px) {
+    .hero-title { font-size: 1.5rem; }
+  }
+</style>

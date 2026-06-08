@@ -1,0 +1,208 @@
+/* ===== Google Fonts (if available) ===== */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&display=swap');
+
+/* ===== CSS Variables: Warm Cute Theme ===== */
+:root {
+  /* Warm pastel palette */
+  --bg-primary: #fef9f4;
+  --bg-secondary: #fdf3e8;
+  --bg-card: #ffffff;
+  --bg-glass: rgba(255, 255, 255, 0.30);
+  --text-primary: #3d2c2c;
+  --text-secondary: #8b6f6f;
+  --text-muted: #b8a0a0;
+
+  /* Accent colors - peachy coral */
+  --accent: #f0846c;
+  --accent-hover: #e06850;
+  --accent-light: #fef3ef;
+  --accent-soft: #fde8e3;
+
+  /* Secondary accent - warm yellow */
+  --accent2: #f5b642;
+  --accent2-light: #fef8ed;
+
+  /* Tag / badge colors */
+  --tag-bg: #fef3ef;
+  --tag-text: #f0846c;
+  --tag-bg2: #fef8ed;
+  --tag-text2: #e09e20;
+
+  /* Borders & shadows */
+  --border-color: #f0e4da;
+  --border-light: #f7efe7;
+  --shadow-sm: 0 1px 3px rgba(180, 140, 120, 0.08);
+  --shadow-md: 0 4px 20px rgba(180, 140, 120, 0.12);
+  --shadow-lg: 0 8px 40px rgba(180, 140, 120, 0.18);
+  --shadow-float: 0 12px 48px rgba(180, 140, 120, 0.22);
+
+  /* Radius */
+  --radius-xs: 8px;
+  --radius-sm: 12px;
+  --radius: 18px;
+  --radius-lg: 24px;
+  --radius-xl: 32px;
+  --radius-full: 50%;
+
+  /* Gradients */
+  --gradient-warm: linear-gradient(135deg, #f0846c 0%, #f5b642 100%);
+  --gradient-soft: linear-gradient(135deg, #fef3ef 0%, #fef8ed 100%);
+  --gradient-card: linear-gradient(180deg, #fff 0%, #fef9f4 100%);
+}
+
+/* ===== Dark Theme ===== */
+[data-theme='dark'] {
+  --bg-primary: #1e1814;
+  --bg-secondary: #261e1a;
+  --bg-card: #2d2420;
+  --bg-glass: rgba(45, 36, 32, 0.3);
+  --text-primary: #e8dcd4;
+  --text-secondary: #b8a498;
+  --text-muted: #7a6e66;
+  --border-color: #3d322c;
+  --border-light: #322a24;
+
+  --accent: #f5a08c;
+  --accent-hover: #f0846c;
+  --accent-light: #3d2a24;
+  --accent-soft: #362420;
+
+  --tag-bg: #3d2a24;
+  --tag-text: #f5a08c;
+  --tag-bg2: #3d3520;
+  --tag-text2: #e0b040;
+
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.2);
+  --shadow-md: 0 4px 20px rgba(0,0,0,0.3);
+  --shadow-lg: 0 8px 40px rgba(0,0,0,0.4);
+  --shadow-float: 0 12px 48px rgba(0,0,0,0.5);
+
+  --gradient-warm: linear-gradient(135deg, #f5a08c 0%, #e0a030 100%);
+  --gradient-soft: linear-gradient(135deg, #3d2a24 0%, #3d3520 100%);
+  --gradient-card: linear-gradient(180deg, #2d2420 0%, #261e1a 100%);
+}
+
+/* ===== Reset ===== */
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  font-size: 16px;
+}
+
+body {
+  font-family: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', -apple-system, sans-serif;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.75;
+  transition: background-color 0.4s ease, color 0.4s ease;
+  background-image:
+    radial-gradient(ellipse at 20% 0%, rgba(240, 132, 108, 0.04) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 100%, rgba(245, 182, 66, 0.04) 0%, transparent 50%);
+  background-attachment: fixed;
+  /* 中文排版优化 */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  letter-spacing: 0.02em;
+}
+
+/* 中文段落：两端对齐 + 首行缩进 */
+.markdown-body p {
+  text-align: justify;
+}
+
+/* 中文引号优化 */
+.markdown-body blockquote p {
+  text-align: left;
+  text-indent: 0;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+  transition: all 0.25s ease;
+}
+
+a:hover {
+  color: var(--accent-hover);
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius-sm);
+}
+
+/* ===== Container ===== */
+.container {
+  max-width: 1140px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.container-narrow {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* ===== Scrollbar ===== */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-secondary); }
+::-webkit-scrollbar-thumb { background: var(--text-muted); border-radius: 3px; }
+
+/* ===== Markdown ===== */
+.markdown-body {
+  font-size: 1.05rem;
+  line-height: 1.9;
+  color: var(--text-primary);
+}
+.markdown-body h1 { font-size: 2rem; margin: 1.5em 0 0.4em; font-weight: 900; }
+.markdown-body h2 { font-size: 1.6rem; margin: 1.4em 0 0.3em; font-weight: 700; border-bottom: 2px solid var(--accent-soft); padding-bottom: 0.2em; }
+.markdown-body h3 { font-size: 1.3rem; margin: 1.2em 0 0.2em; font-weight: 700; }
+.markdown-body p { margin: 0.8em 0; }
+.markdown-body ul, .markdown-body ol { padding-left: 1.5em; margin: 0.6em 0; }
+.markdown-body li { margin: 0.3em 0; }
+.markdown-body code { background: var(--bg-secondary); padding: 0.15em 0.5em; border-radius: 6px; font-size: 0.9em; font-family: 'Fira Code', 'Cascadia Code', Consolas, monospace; }
+.markdown-body pre { background: var(--bg-secondary); padding: 1.2em; border-radius: var(--radius-sm); overflow-x: auto; margin: 1em 0; border: 1px solid var(--border-color); }
+.markdown-body pre code { background: none; padding: 0; }
+.markdown-body blockquote { border-left: 3px solid var(--accent); padding: 0.6em 1.2em; margin: 1em 0; background: var(--accent-light); border-radius: 0 var(--radius-xs) var(--radius-xs) 0; color: var(--text-secondary); }
+.markdown-body table { width: 100%; border-collapse: collapse; margin: 1em 0; }
+.markdown-body th, .markdown-body td { border: 1px solid var(--border-color); padding: 0.6em 1em; text-align: left; }
+.markdown-body th { background: var(--bg-secondary); font-weight: 600; }
+.markdown-body img { border-radius: var(--radius-sm); margin: 1em 0; }
+.markdown-body hr { border: none; border-top: 1px solid var(--border-color); margin: 2em 0; }
+.markdown-body strong { font-weight: 700; }
+
+/* ===== Glass morphism base ===== */
+.glass {
+  background: var(--bg-glass);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-light);
+}
+
+/* ===== Utility ===== */
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border-width: 0;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+  html { font-size: 15px; }
+  .container, .container-narrow { padding: 0 16px; }
+  .markdown-body h1 { font-size: 1.6rem; }
+  .markdown-body h2 { font-size: 1.3rem; }
+}
+
+@media (max-width: 480px) {
+  html { font-size: 14px; }
+}

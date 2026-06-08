@@ -1,0 +1,101 @@
+---
+import ThemeToggle from './ThemeToggle.astro';
+---
+
+<nav class="navbar glass">
+  <div class="navbar-inner container">
+    <a href="/" class="navbar-brand">
+      <span class="brand-dot"></span>
+      <span class="brand-text">我的blog</span>
+    </a>
+    <div class="navbar-links">
+      <a href="/" class="nav-link">日记</a>
+      <a href="/gallery" class="nav-link">相册</a>
+    </div>
+    <ThemeToggle />
+  </div>
+</nav>
+
+<style>
+  .navbar {
+    position: sticky;
+    top: 8px;
+    z-index: 100;
+    margin: 8px 12px 0;
+    border-radius: var(--radius-lg);
+    transition: all 0.4s ease;
+  }
+
+  .navbar-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+    gap: 16px;
+    padding: 0 20px !important;
+  }
+
+  .navbar-brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--text-primary) !important;
+    text-decoration: none;
+  }
+
+  .brand-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--gradient-warm);
+    display: inline-block;
+    flex-shrink: 0;
+  }
+
+  .brand-text {
+    background: var(--gradient-warm);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .navbar-links {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex: 1;
+    justify-content: center;
+  }
+
+  .nav-link {
+    padding: 6px 16px;
+    border-radius: var(--radius-xs);
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.25s ease;
+  }
+
+  .nav-link:hover {
+    background: var(--accent-soft);
+    color: var(--accent);
+    transform: translateY(-1px);
+  }
+
+  @media (max-width: 480px) {
+    .navbar {
+      margin: 4px 4px 0;
+      border-radius: var(--radius);
+      top: 4px;
+    }
+
+    .brand-emoji { font-size: 1.2rem; }
+
+    .nav-link {
+      padding: 4px 10px;
+      font-size: 0.82rem;
+    }
+  }
+</style>

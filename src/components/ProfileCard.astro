@@ -1,0 +1,173 @@
+---
+import { getCollection } from 'astro:content';
+
+const diaries = await getCollection('diary');
+const galleries = await getCollection('gallery');
+const diaryCount = diaries.length;
+const galleryCount = galleries.length;
+const tagSet = new Set();
+diaries.forEach(d => d.data.tags?.forEach(t => tagSet.add(t)));
+const tagCount = tagSet.size;
+---
+
+<aside class="profile-card glass">
+  <!-- Avatar -->
+  <div class="profile-avatar-wrapper">
+    <div class="profile-avatar">
+          </div>
+  </div>
+
+  <!-- Info -->
+  <div class="profile-info">
+    <h2 class="profile-name">我的blog</h2>
+    <p class="profile-bio">
+      记录生活中的小确幸<br/>
+      爱拍照 · 爱咖啡 · 爱生活
+    </p>
+  </div>
+
+  <!-- Stats -->
+  <div class="profile-stats">
+    <div class="stat-item">
+      <span class="stat-num">{diaryCount}</span>
+      <span class="stat-label">日记</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <span class="stat-num">{galleryCount}</span>
+      <span class="stat-label">相册</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <span class="stat-num">{tagCount}</span>
+      <span class="stat-label">标签</span>
+    </div>
+  </div>
+
+  <!-- Social links -->
+  <div class="profile-links">
+    <a href="/" class="profile-link active">日记</a>
+    <a href="/gallery" class="profile-link">相册</a>
+  </div>
+</aside>
+
+<style>
+  .profile-card {
+    border-radius: var(--radius-lg);
+    padding: 28px 24px 20px;
+    text-align: center;
+    position: sticky;
+    top: 80px;
+    transition: all 0.4s ease;
+  }
+
+  .profile-card:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-2px);
+  }
+
+  .profile-avatar-wrapper {
+    margin-bottom: 16px;
+  }
+
+  .profile-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: var(--radius-full);
+    background: var(--gradient-warm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    box-shadow: 0 4px 16px rgba(240, 132, 108, 0.3);
+    transition: transform 0.3s ease;
+  }
+
+  .profile-avatar:hover {
+    transform: scale(1.08) rotate(-6deg);
+  }
+
+  .avatar-emoji {
+    font-size: 2.2rem;
+  }
+
+  .profile-name {
+    font-size: 1.2rem;
+    font-weight: 800;
+    margin: 0 0 6px;
+    background: var(--gradient-warm);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .profile-bio {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    line-height: 1.8;
+    margin: 0;
+  }
+
+  .profile-stats {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    margin: 20px 0;
+    padding: 16px 0;
+    border-top: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .stat-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .stat-num {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: var(--accent);
+  }
+
+  .stat-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+
+  .stat-divider {
+    width: 1px;
+    height: 24px;
+    background: var(--border-color);
+  }
+
+  .profile-links {
+    display: flex;
+    gap: 8px;
+    margin-top: 16px;
+  }
+
+  .profile-link {
+    flex: 1;
+    padding: 8px 0;
+    border-radius: var(--radius-xs);
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    background: var(--bg-secondary);
+    transition: all 0.25s ease;
+  }
+
+  .profile-link:hover {
+    background: var(--accent-soft);
+    color: var(--accent);
+    transform: translateY(-2px);
+  }
+
+  .profile-link.active {
+    background: var(--accent);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(240, 132, 108, 0.3);
+  }
+</style>

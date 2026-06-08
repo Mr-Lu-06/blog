@@ -1,0 +1,327 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import DiaryCard from '../components/DiaryCard.astro';
+import ProfileCard from '../components/ProfileCard.astro';
+import VideoHero from '../components/VideoHero.astro';
+import { sortByDate } from '../utils/date';
+
+const diaries = await getCollection('diary');
+const sorted = sortByDate(diaries);
+
+// 是否启用视频封面：true=视频  false=静态Hero
+const useVideo = true;
+const videoSrc = '/video/hero.mp4';
+---
+
+<BaseLayout
+  title="日记"
+  description="记录生活的每一天"
+>
+  <!-- Video Hero — 全宽铺满 -->
+  {useVideo ? (
+    <VideoHero src={videoSrc} />
+  ) : (
+    <section class="hero glass">
+      <div class="hero-content">
+        <h1 class="hero-title">
+          欢迎来到我的小窝
+        </h1>
+        <p class="hero-subtitle">用文字和照片，珍藏每一天的小美好</p>
+      </div>
+      <div class="hero-decoration">
+        <span class="deco-item deco-1"></span>
+        <span class="deco-item deco-2"></span>
+        <span class="deco-item deco-3"></span>
+        <span class="deco-item deco-4"></span>
+      </div>
+    </section>
+  )}
+
+  <div class="container home-page">
+
+    <!-- Main content: Two-column layout -->
+    <div class="home-layout">
+      <!-- Left: Diary Grid -->
+      <div class="home-main">
+        <!-- Tag filters -->
+        <div class="tag-filters" id="tag-filters">
+          <button class="tag-filter-btn active" data-tag="all">全部</button>
+        </div>
+
+        <div id="diary-grid">
+          {sorted.length > 0 ? (
+            <div class="diary-grid">
+              {sorted.map((entry) => (
+                <div class="diary-item" data-tags={JSON.stringify(entry.data.tags || [])}>
+                  <DiaryCard
+                    title={entry.data.title}
+                    date={entry.data.date}
+                    slug={entry.id}
+                    tags={entry.data.tags}
+                    mood={entry.data.mood}
+                    weather={entry.data.weather}
+                    featured_image={entry.data.featured_image}
+                    excerpt={entry.rendered?.html?.replace(/<[^>]*>/g, '').substring(0, 100).trim() + '...'}
+                  />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div class="empty-state">
+              <span class="empty-icon"></span>
+              <p>还没有日记，去后台写第一篇吧！</p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <!-- Right: Sidebar -->
+      <div class="home-sidebar">
+        <ProfileCard />
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<!-- Tag filtering -->
+<script>
+  const items = document.querySelectorAll('.diary-item');
+  const tags = new Set();
+  items.forEach(item => {
+    try { JSON.parse(item.dataset.tags).forEach(t => tags.add(t)); } catch {}
+  });
+  const filterContainer = document.getElementById('tag-filters');
+  [...tags].sort().forEach(tag => {
+    const btn = document.createElement('button');
+    btn.className = 'tag-filter-btn';
+    btn.textContent = tag;
+    btn.dataset.tag = tag;
+    btn.addEventListener('click', () => filterByTag(tag, btn));
+    filterContainer.appendChild(btn);
+  });
+  function filterByTag(tag, activeBtn) {
+    document.querySelectorAll('.tag-filter-btn').forEach(b => b.classList.remove('active'));
+    activeBtn.classList.add('active');
+    items.forEach(item => {
+      try {
+        const itemTags = JSON.parse(item.dataset.tags);
+        item.style.display = itemTags.includes(tag) ? '' : 'none';
+      } catch { item.style.display = 'none'; }
+    });
+  }
+  document.querySelector('.tag-filter-btn[data-tag="all"]').addEventListener('click', function() {
+    document.querySelectorAll('.tag-filter-btn').forEach(b => b.classList.remove('active'));
+    this.classList.add('active');
+    items.forEach(item => item.style.display = '');
+  });
+</script>
+
+<style>
+  .home-page {
+    padding-top: 32px;
+    padding-bottom: 60px;
+  }
+
+  /* ===== Hero ===== */
+  .hero {
+    position: relative;
+    border-radius: var(--radius-xl);
+    padding: 36px 40px;
+    margin-bottom: 32px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+
+  .hero:hover {
+    box-shadow: var(--shadow-md);
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 1;
+  }
+
+  .hero-title {
+    font-size: 1.8rem;
+    font-weight: 900;
+    margin: 0 0 8px;
+    color: var(--text-primary);
+  }
+
+  .hero-wave {
+    display: inline-block;
+    animation: wave 1.5s ease-in-out infinite;
+  }
+
+  @keyframes wave {
+    0%, 100% { transform: rotate(0); }
+    25% { transform: rotate(15deg); }
+    75% { transform: rotate(-15deg); }
+  }
+
+  .hero-subtitle {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    margin: 0;
+  }
+
+  .hero-decoration {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .deco-item {
+    position: absolute;
+    font-size: 1.6rem;
+    opacity: 0.3;
+    animation: float 6s ease-in-out infinite;
+  }
+
+  .deco-1 { top: 15%; right: 15%; animation-delay: 0s; }
+  .deco-2 { top: 60%; right: 25%; animation-delay: -2s; font-size: 1.2rem; }
+  .deco-3 { top: 20%; right: 8%; animation-delay: -4s; font-size: 1rem; }
+  .deco-4 { top: 70%; right: 12%; animation-delay: -1s; font-size: 1.4rem; }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-12px) rotate(8deg); }
+  }
+
+  /* ===== Two-column Layout ===== */
+  .home-layout {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 28px;
+    align-items: start;
+  }
+
+  .home-main {
+    min-width: 0;
+  }
+
+  .home-sidebar {
+    position: relative;
+  }
+
+  /* ===== Tag Filters ===== */
+  .tag-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 24px;
+  }
+
+  .tag-filter-btn {
+    padding: 7px 18px;
+    border: 1.5px solid var(--border-color);
+    border-radius: 24px;
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: inherit;
+  }
+
+  .tag-filter-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-light);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(240, 132, 108, 0.15);
+  }
+
+  .tag-filter-btn.active {
+    background: var(--gradient-warm);
+    color: #fff;
+    border-color: transparent;
+    box-shadow: 0 4px 16px rgba(240, 132, 108, 0.3);
+  }
+
+  /* ===== Diary Grid (Masonry-like 2 col) ===== */
+  .diary-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+
+  /* Staggered card heights for magazine feel */
+  .diary-item:nth-child(3n+1) .diary-card {
+    margin-top: 0;
+  }
+  .diary-item:nth-child(3n+2) .diary-card {
+    margin-top: 12px;
+  }
+  .diary-item:nth-child(3n) .diary-card {
+    margin-top: -8px;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 80px 20px;
+    color: var(--text-secondary);
+  }
+
+  .empty-icon {
+    font-size: 3rem;
+    display: block;
+    margin-bottom: 16px;
+  }
+
+  .empty-state p {
+    font-size: 1.05rem;
+  }
+
+  /* ===== Responsive ===== */
+  @media (max-width: 900px) {
+    .home-layout {
+      grid-template-columns: 1fr;
+    }
+
+    .home-sidebar {
+      order: -1;
+    }
+
+    .profile-card {
+      position: static !important;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .hero {
+      padding: 28px 24px;
+    }
+
+    .hero-title {
+      font-size: 1.4rem;
+    }
+
+    .diary-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .hero {
+      padding: 24px 18px;
+    }
+
+    .hero-title {
+      font-size: 1.2rem;
+    }
+
+    .diary-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .diary-item:nth-child(3n+2) .diary-card,
+    .diary-item:nth-child(3n) .diary-card {
+      margin-top: 0;
+    }
+  }
+</style>
