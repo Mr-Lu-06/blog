@@ -4,14 +4,25 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>后台管理 — 我的小窝</title>
-  <!-- Netlify Identity Widget（必须，用于登录） -->
-  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
-  <!-- Decap CMS -->
-  <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
+  <!-- Netlify Identity Widget（用于登录） -->
+  <script src="https://cdn.jsdelivr.net/npm/netlify-identity-widget@1.9.2/build/netlify-identity-widget.js"></script>
+  <!-- Decap CMS（使用 jsdelivr CDN，国内可访问） -->
+  <script src="https://cdn.jsdelivr.net/npm/decap-cms@3.4.2/dist/decap-cms.js"></script>
 </head>
 <body>
   <script>
-    // Decap CMS fully initializes after Netlify Identity
+    // Netlify Identity: redirect back to admin after login
+    if (window.netlifyIdentity) {
+      window.netlifyIdentity.on('init', function(user) {
+        if (!user) {
+          window.netlifyIdentity.on('login', function() {
+            document.location.href = '/admin/';
+          });
+        }
+      });
+    }
+
+    // Initialize Decap CMS
     CMS.init();
   </script>
 </body>
