@@ -8,6 +8,7 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
+    "postinstall": "node -e \"require('fs').copyFileSync(require('path').join('node_modules','decap-cms','dist','decap-cms.js'), require('path').join('public','admin','decap-cms.js')); console.log('✓ decap-cms copied to public/admin/')\"",
     "preview": "astro preview",
     "astro": "astro"
   },

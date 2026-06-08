@@ -4,24 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>后台管理</title>
-  <script>
-    console.log('Loading CMS...');
-    window.addEventListener('error', function(e) {
-      console.error('Page error:', e.message || e);
-      document.body.innerHTML = '<h2>加载失败</h2><p>' + (e.message || '未知错误') + '</p><hr><pre>' + (e.filename || '') + '</pre>';
-    });
-  </script>
-  <script src="https://cdn.jsdelivr.net/npm/decap-cms@3.0.0/dist/decap-cms.js"></script>
+  <script src="/admin/decap-cms.js"></script>
 </head>
 <body>
-  <script>
-    console.log('CMS loaded:', typeof CMS);
-    if (typeof CMS !== 'undefined') {
-      CMS.init();
-      console.log('CMS.init() called');
-    } else {
-      document.body.innerHTML = '<h2>CMS 脚本未加载</h2><p>脚本可能被网络屏蔽，尝试刷新页面或更换网络。</p>';
-    }
-  </script>
+  <script>CMS.init()</script>
 </body>
 </html>
