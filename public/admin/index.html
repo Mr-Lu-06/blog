@@ -516,6 +516,15 @@
         renderSidebar();
         showStatus('已加载', 'success');
       } catch (e) {
+        if (e.status === 404) {
+          var hidden = JSON.parse(localStorage.getItem('hidden_files') || '[]');
+          if (hidden.indexOf(path) === -1) { hidden.push(path); }
+          localStorage.setItem('hidden_files', JSON.stringify(hidden));
+          delete allFilesCache[path];
+          showStatus('文件已不存在，已自动隐藏', 'success');
+          loadFiles();
+          return;
+        }
         showStatus('打开失败: ' + e.message, 'error');
       }
     }
