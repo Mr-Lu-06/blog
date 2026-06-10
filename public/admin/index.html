@@ -339,7 +339,7 @@
 
   <script>
     const REPO = 'Mr-Lu-06/blog';
-    const DEPLOY_HOOK = 'https://api.netlify.com/build_hooks/6a297e47ca8be545f7622b05';
+    var DEPLOY_HOOK = localStorage.getItem('deploy_hook') || '';
     const BRANCH = 'main';
 
     // ===== 登录密码（在这里修改）=====
@@ -778,6 +778,13 @@
     var deploying = false;
     async function deploy() {
       if (deploying) return;
+      // 首次使用：让用户粘贴 Cloudflare 部署 webhook URL
+      if (!DEPLOY_HOOK) {
+        var url = prompt('部署 webhook URL\n\nCloudflare Pages 中获取：\n设置 → Build hooks → 添加 → 复制 URL\n（或用 Git push 自动部署则不需要）');
+        if (!url) { deploying = false; return; }
+        localStorage.setItem('deploy_hook', url);
+        DEPLOY_HOOK = url;
+      }
       deploying = true;
       var btn = document.getElementById('btn-deploy');
       btn.textContent = '部署中...';
