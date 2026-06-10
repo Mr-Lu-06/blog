@@ -414,11 +414,16 @@
     }
 
     // ===== Load Files =====
+    async function safeGh(path) {
+      try { return await gh(path); }
+      catch (e) { if (e.message.indexOf('404') >= 0) return []; else throw e; }
+    }
+
     async function loadFiles() {
       showStatus('加载中...', 'loading');
       try {
-        const diaryFiles = await gh('/contents/src/content/diary');
-        const galleryFiles = await gh('/contents/src/content/gallery');
+        const diaryFiles = await safeGh('/contents/src/content/diary');
+        const galleryFiles = await safeGh('/contents/src/content/gallery');
 
         files = [
           ...(Array.isArray(diaryFiles) ? diaryFiles.map(f => ({ ...f, _type: 'diary' })) : []),
