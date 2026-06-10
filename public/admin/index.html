@@ -707,6 +707,9 @@
       showStatus('正在删除...', 'loading');
 
       try {
+        // 删除前重新获取最新 SHA（防止缓存过期导致 403）
+        var latest = await gh('/contents/' + currentFile.path);
+        currentFile.sha = latest.sha;
         await gh('/contents/' + currentFile.path, 'DELETE', {
           message: '删除: ' + title,
           sha: currentFile.sha,
@@ -722,6 +725,13 @@
         showStatus('已删除', 'success');
         loadFiles();
       } catch (e) {
+        // 403 = 权限不足或 SHA 过期
+        if (e.status === 403) {
+          showStatus('删除失败：token 权限不足或文件已变更，请刷新页面重试', 'error');
+          document.getElementById('btn-delete').disabled = false;
+          document.getElementById('btn-delete').textContent = '删除';
+          return;
+        }
         // 404 = 文件已不存在，直接清理本地缓存
         if (e.status === 404) {
           delete allFilesCache[currentFile.path];
