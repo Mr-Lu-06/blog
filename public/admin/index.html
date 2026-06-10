@@ -304,13 +304,12 @@
 
   <!-- ===== Login Screen ===== -->
   <div id="login-screen">
-    <h1>🔐 登录</h1>
-    <p>使用 GitHub Token 连接仓库</p>
-    <input type="password" id="token-input" placeholder="GitHub Personal Access Token" />
-    <button class="btn" onclick="login()">连接</button>
-    <div class="hint">
-      需要 <a href="https://github.com/settings/tokens/new?scopes=repo&description=blog-admin" target="_blank">创建 Token</a>（勾选 repo 权限）
-    </div>
+    <h1>登录后台</h1>
+    <input type="text" id="login-user" placeholder="用户名" autocomplete="username" />
+    <input type="password" id="login-pass" placeholder="密码" autocomplete="current-password" />
+    <p id="login-error" style="color:#d32f2f;display:none;margin-bottom:12px;font-size:0.85rem;"></p>
+    <button class="btn" onclick="login()">登录</button>
+    <div class="hint">默认账号: admin / 密码: admin123</div>
   </div>
 
   <!-- ===== Admin App ===== -->
@@ -340,25 +339,42 @@
     const REPO = 'Mr-Lu-06/blog';
     const BRANCH = 'main';
 
+    // ===== 登录密码（在这里修改）=====
+    const ADMIN_USER = 'admin';
+    const ADMIN_PASS = 'admin123';
+
     let token = '';
     let files = [];
     let currentFile = null;
 
     // ===== Auth =====
-    token = localStorage.getItem('gh_token');
-    if (token) { showApp(); loadFiles(); }
+    if (localStorage.getItem('admin_logged_in')) { showApp(); loadFiles(); }
 
     function login() {
-      token = document.getElementById('token-input').value.trim();
-      if (!token) return;
-      localStorage.setItem('gh_token', token);
+      var u = document.getElementById('login-user').value.trim();
+      var p = document.getElementById('login-pass').value.trim();
+      var err = document.getElementById('login-error');
+
+      if (u !== ADMIN_USER || p !== ADMIN_PASS) {
+        err.textContent = '用户名或密码错误';
+        err.style.display = 'block';
+        return;
+      }
+
+      token = localStorage.getItem('gh_token');
+      if (!token) {
+        token = prompt('首次使用需要 GitHub Token：\n\n1. 打开 https://github.com/settings/tokens/new?scopes=repo&description=blog-admin\n2. 拉到页面底部点击「Generate token」\n3. 复制 token 粘贴到此处\n\n（仅需设置一次，之后自动记住）');
+        if (!token) return;
+        localStorage.setItem('gh_token', token);
+      }
+
+      localStorage.setItem('admin_logged_in', '1');
       showApp();
       loadFiles();
     }
 
     function logout() {
-      localStorage.removeItem('gh_token');
-      token = '';
+      localStorage.removeItem('admin_logged_in');
       location.reload();
     }
 
