@@ -399,8 +399,10 @@
       const url = 'https://api.github.com/repos/' + REPO + path;
       const res = await fetch(url, opts);
       if (!res.ok) {
-        const err = await res.text();
-        throw new Error(res.status + ': ' + (err.length > 100 ? err.substring(0, 100) : err));
+        const errText = await res.text().catch(() => '');
+        var err = new Error(res.status + ': ' + (errText.length > 100 ? errText.substring(0, 100) : errText));
+        err.status = res.status;
+        throw err;
       }
       return method === 'GET' ? res.json() : res;
     }
@@ -416,7 +418,7 @@
     // ===== Load Files =====
     async function safeGh(path) {
       try { return await gh(path); }
-      catch (e) { if (e.message.indexOf('404') >= 0) return []; else throw e; }
+      catch (e) { if (e.status === 404) return []; else throw e; }
     }
 
     async function loadFiles() {
@@ -434,7 +436,7 @@
         showStatus('加载完成', 'success');
       } catch (e) {
         var msg = e.message;
-        if (msg.indexOf('401') >= 0) {
+        if (e.status === 401) {
           localStorage.removeItem('gh_token');
           localStorage.removeItem('admin_logged_in');
           token = '';
