@@ -321,7 +321,6 @@
         <button onclick="newGallery()">+ 新建相册</button>
         <button onclick="deleteFile()" id="btn-delete" style="color:#d32f2f;border-color:#d32f2f;display:none;">删除</button>
         <button onclick="unhideAll()" id="btn-unhide" style="display:none;">恢复隐藏</button>
-        <button onclick="deploy()" id="btn-deploy" style="color:#0891b2;border-color:#0891b2;">部署</button>
         <button onclick="logout()">退出</button>
       </div>
     </div>
@@ -339,7 +338,6 @@
 
   <script>
     const REPO = 'Mr-Lu-06/blog';
-    var DEPLOY_HOOK = localStorage.getItem('deploy_hook') || '';
     const BRANCH = 'main';
 
     // ===== 登录密码（在这里修改）=====
@@ -774,38 +772,6 @@
       }
     }
 
-    // ===== Deploy =====
-    var deploying = false;
-    async function deploy() {
-      if (deploying) return;
-      // 首次使用：让用户粘贴 Cloudflare 部署 webhook URL
-      if (!DEPLOY_HOOK) {
-        var url = prompt('部署 webhook URL\n\nCloudflare Pages 中获取：\n设置 → Build hooks → 添加 → 复制 URL\n（或用 Git push 自动部署则不需要）');
-        if (!url) { deploying = false; return; }
-        localStorage.setItem('deploy_hook', url);
-        DEPLOY_HOOK = url;
-      }
-      deploying = true;
-      var btn = document.getElementById('btn-deploy');
-      btn.textContent = '部署中...';
-      btn.disabled = true;
-      showStatus('正在触发部署...', 'loading');
-      try {
-        await fetch(DEPLOY_HOOK, { method: 'POST' });
-        showStatus('部署已触发，等待 1-2 分钟后生效', 'success');
-        btn.textContent = '已触发 ✓';
-        setTimeout(function() {
-          btn.textContent = '部署';
-          btn.disabled = false;
-          deploying = false;
-        }, 5000);
-      } catch (e) {
-        showStatus('触发失败: ' + e.message, 'error');
-        btn.textContent = '部署';
-        btn.disabled = false;
-        deploying = false;
-      }
-    }
 
     // ===== New File =====
     function newDiary() {
