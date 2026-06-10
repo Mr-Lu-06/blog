@@ -551,17 +551,169 @@
       return { data, body: body.trimStart() };
     }
 
-                    function buildFrontmatter(data, body) {
+    function buildFrontmatter(data, body) {
       let yaml = '---\n';
       for (const [k, v] of Object.entries(data)) {
         if (Array.isArray(v)) yaml += k + ': ' + JSON.stringify(v) + '\n';
-        else if (/^\d{4}-\d{2}-\d{2}$/.test(v)) yaml += k + ': ' + v + '\n';
+        else if (/^\\d{4}-\\d{2}-\\d{2}$/.test(v)) yaml += k + ': ' + v + '\n';
         else yaml += k + ': "' + String(v).replace(/"/g, '\\"') + '"\n';
       }
       yaml += '---\n\n';
       return yaml + body.trimStart();
     }
 
+    function renderEditor(content, path) {
+      const parsed = parseFrontmatter(content);
+      const isDiary = path.startsWith('src/content/diary');
+
+      let metaHtml = '';
+      if (isDiary) {
+        metaHtml = `
+          <div class="meta-field"><label>标题</label><input id="fm-title" value="${escapeAttr(parsed.data.title || '')}" placeholder="文章标题" /></div>
+          <div class="meta-field"><label>日期</label><input id="fm-date" type="date" value="${escapeAttr(parsed.data.date || '')}" /></div>
+          <div class="meta-field"><label>心情</label>
+            <select id="fm-mood"><option value="">--</option><option>开心</option><option>平静</option><option>期待</option><option>感动</option><option>疲惫</option><option>郁闷</option></select>
+          </div>
+          <div class="meta-field"><label>天气</label>
+            <select id="fm-weather"><option value="">--</option><option>晴天</option><option>多云</option><option>阴天</option><option>小雨</option><option>大雨</option><option>雪天</option></select>
+          </div>
+          <div class="meta-field"><label>标签（逗号分隔）</label><input id="fm-tags" value="${escapeAttr(Array.isArray(parsed.data.tags) ? parsed.data.tags.join(', ') : parsed.data.tags || '')}" placeholder="日常, 旅行" /></div>
+          <div class="meta-field"><label>头图路径</label><input id="fm-image" value="${escapeAttr(parsed.data.featured_image || '')}" placeholder="/images/xxx.jpg" /></div>
+        `;
+      } else {
+        metaHtml = `
+          <div class="meta-field"><label>标题</label><input id="fm-title" value="${escapeAttr(parsed.data.title || '')}" /></div>
+          <div class="meta-field"><label>日期</label><input id="fm-date" type="date" value="${escapeAttr(parsed.data.date || '')}" /></div>
+        `;
+      }
+
+      const editorHtml = `
+        <div class="editor-header">
+          <input class="title-input" id="editor-title" value="${escapeAttr(parsed.data.title || '')}" placeholder="标题" />
+          <div class="editor-actions">
+            <button onclick="togglePreview()">预览</button>
+            <button class="btn-save" id="btn-save" onclick="saveFile()">保存</button>
+          </div>
+        </div>
+        <div class="meta-fields">${metaHtml}</div>
+        <div class="content-wrap">
+          <textarea id="editor-body" placeholder="正文（Markdown）">${escapeHtml(parsed.body)}</textarea>
+          <div class="preview" id="preview-panel" style="display:none;"></div>
+        </div>
+      `;
+
+      document.getElementById('editor').innerHTML = editorHtml;
+      document.getElementById('editor').classList.add('active');
+
+      // Set select values
+      if (isDiary) {
+        if (parsed.data.mood) document.getElementById('fm-mood').value = parsed.data.mood;
+        if (parsed.data.weather) document.getElementById('fm-weather').value = parsed.data.weather;
+      }
+
+      // Live preview
+      document.getElementById('editor-body').addEventListener('input', updatePreview);
+      updatePreview();
+    }
+
+    function updatePreview() {
+      const body = document.getElementById('editor-body').value;
+      const preview = document.getElementById('preview-panel');
+      if (preview.style.display !== 'none') {
+        preview.innerHTML = simpleMarkdown(body);
+      }
+    }
+
+    let previewVisible = false;
+    function togglePreview() {
+      const preview = document.getElementById('preview-panel');
+      previewVisible = !previewVisible;
+      preview.style.display = previewVisible ? 'block' : 'none';
+      if (previewVisible) updatePreview();
+    }
+
+        function unhideAll() {
+      localStorage.removeItem('hidden_files');
+      showStatus('已恢复所有隐藏文件', 'success');
+      loadFiles();
+    }
+
+    // ===== Simple Markdown =====
+    function simpleMarkdown(text) {
+      return text
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+        .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+        .replace(/^# (.+)$/gm, '<h1>$1</h1>')
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.+?)\*/g, '<em>$1</em>')
+        .replace(/`([^`]+)`/g, '<code>$1</code>')
+        .replace(/^> (.+)$/gm, '<blockquote>$1</blockquote>')
+        .replace(/^- (.+)$/gm, '<li>$1</li>')
+        .replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>')
+        .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" style="max-width:100%">')
+        .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>')
+        .split('\n\n').map(p => p.trim() ? '<p>' + p.replace(/\n/g, '<br/>') + '</p>' : '').join('\n');
+    }
+
+    // ===== Save File =====
+    async function saveFile() {
+      if (!currentFile) return;
+
+      const title = document.getElementById('editor-title').value.trim();
+      const body = document.getElementById('editor-body').value;
+      const isDiary = currentFile.path.startsWith('src/content/diary');
+
+      const data = { title };
+
+      if (isDiary) {
+        data.date = document.getElementById('fm-date').value;
+        data.tags = document.getElementById('fm-tags').value.split(/[,，\s]+/).filter(Boolean);
+        const mood = document.getElementById('fm-mood').value;
+        if (mood) data.mood = mood;
+        const weather = document.getElementById('fm-weather').value;
+        if (weather) data.weather = weather;
+        const image = document.getElementById('fm-image').value.trim();
+        if (image) data.featured_image = image;
+      } else {
+        data.date = document.getElementById('fm-date').value;
+      }
+
+      const newContent = buildFrontmatter(data, body);
+
+      document.getElementById('btn-save').disabled = true;
+      document.getElementById('btn-save').textContent = '保存中...';
+      showStatus('正在保存...', 'loading');
+
+      try {
+        var saveData = {
+          message: '更新: ' + title,
+          content: btoa(unescape(encodeURIComponent(newContent))),
+          branch: BRANCH,
+        };
+        if (currentFile.sha) saveData.sha = currentFile.sha;
+        await gh('/contents/' + currentFile.path, 'PUT', saveData);
+
+        // Clear cache for this file
+        delete allFilesCache[currentFile.path];
+        // 重新获取文件信息以更新 sha
+        var newData = await gh('/contents/' + currentFile.path);
+        currentFile.sha = newData.sha;
+        document.getElementById('btn-delete').style.display = 'inline-block';
+        showStatus('保存成功！Netlify 自动部署中...', 'success');
+        document.getElementById('btn-save').textContent = '已保存 ✓';
+        setTimeout(() => {
+          document.getElementById('btn-save').disabled = false;
+          document.getElementById('btn-save').textContent = '保存';
+        }, 2000);
+      } catch (e) {
+        showStatus('保存失败: ' + e.message, 'error');
+        document.getElementById('btn-save').disabled = false;
+        document.getElementById('btn-save').textContent = '保存';
+      }
+    }
+
+    // ===== Delete File =====
     async function deleteFile() {
       if (!currentFile) return;
       if (!currentFile.sha) {
@@ -625,14 +777,6 @@
         document.getElementById('btn-delete').disabled = false;
         document.getElementById('btn-delete').textContent = '删除';
       }
-    }
-
-
-    // ===== Unhide =====
-    function unhideAll() {
-      localStorage.removeItem('hidden_files');
-      showStatus('已恢复所有隐藏文件', 'success');
-      loadFiles();
     }
 
     // ===== New File =====
