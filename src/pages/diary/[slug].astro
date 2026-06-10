@@ -13,10 +13,10 @@ export async function getStaticPaths() {
 
 const { entry } = Astro.props;
 const { title, date, tags, mood, weather, featured_image } = entry.data;
-const html = entry.rendered?.html;
+const { Content } = await entry.render();
 ---
 
-<BaseLayout title={title} description={entry.rendered?.html?.replace(/<[^>]*>/g, '').substring(0, 160)}>
+<BaseLayout title={title} description={entry.body?.substring(0, 160).replace(/[#*>`-]/g, '').trim()}>
   <div class="container-narrow diary-page">
     <a href="/" class="back-link">
       <span class="back-arrow">←</span> 返回首页
@@ -49,7 +49,8 @@ const html = entry.rendered?.html;
         )
       }
 
-      <div class="markdown-body diary-content" set:html={html}>
+      <div class="markdown-body diary-content">
+        <Content />
       </div>
 
       <footer class="diary-footer">

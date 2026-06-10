@@ -62,7 +62,7 @@ const videoSrc = '/video/hero.mp4';
                     mood={entry.data.mood}
                     weather={entry.data.weather}
                     featured_image={entry.data.featured_image}
-                    excerpt={entry.rendered?.html?.replace(/<[^>]*>/g, '').substring(0, 100).trim() + '...'}
+                    excerpt={entry.body?.replace(/[#*>`-]/g, '').substring(0, 100).trim() + '...'}
                   />
                 </div>
               ))}
