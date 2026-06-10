@@ -722,6 +722,18 @@
         showStatus('已删除', 'success');
         loadFiles();
       } catch (e) {
+        // 404 = 文件已不存在，直接清理本地缓存
+        if (e.status === 404) {
+          delete allFilesCache[currentFile.path];
+          currentFile = null;
+          document.getElementById('editor').innerHTML = '';
+          document.getElementById('editor').classList.remove('active');
+          document.getElementById('empty-state').style.display = 'flex';
+          document.getElementById('btn-delete').style.display = 'none';
+          showStatus('已清理', 'success');
+          loadFiles();
+          return;
+        }
         showStatus('删除失败: ' + e.message, 'error');
         document.getElementById('btn-delete').disabled = false;
         document.getElementById('btn-delete').textContent = '删除';
