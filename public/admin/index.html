@@ -384,7 +384,15 @@
     }
 
     // ===== GitHub API =====
-    async function gh(path, method = 'GET', body = null) {
+    var lastRequest = 0;
+    async function gh(path, method = 'GET', body = null, retry = 0) {
+      // 请求限速：最少间隔 200ms，避免触达 GitHub 次级频率限制
+      var now = Date.now();
+      if (now - lastRequest < 200) {
+        await new Promise(r => setTimeout(r, 200 - (now - lastRequest)));
+      }
+      lastRequest = Date.now();
+
       const opts = {
         method,
         headers: {
@@ -399,6 +407,13 @@
       const url = 'https://api.github.com/repos/' + REPO + path;
       const res = await fetch(url, opts);
       if (!res.ok) {
+        // 403/429 限流：等待后重试（最多 3 次）
+        if ((res.status === 403 || res.status === 429) && retry < 3) {
+          var wait = 3000 * (retry + 1);
+          showStatus('API 限流，' + (wait/1000) + '秒后重试...', 'loading');
+          await new Promise(r => setTimeout(r, wait));
+          return gh(path, method, body, retry + 1);
+        }
         const errText = await res.text().catch(() => '');
         var err = new Error(res.status + ': ' + (errText.length > 100 ? errText.substring(0, 100) : errText));
         err.status = res.status;
