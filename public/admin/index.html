@@ -428,7 +428,16 @@
         renderSidebar();
         showStatus('加载完成', 'success');
       } catch (e) {
-        showStatus('加载失败: ' + e.message, 'error');
+        var msg = e.message;
+        if (msg.indexOf('401') >= 0) {
+          localStorage.removeItem('gh_token');
+          localStorage.removeItem('admin_logged_in');
+          token = '';
+          alert('GitHub Token 无效，请重新设置。\n\n1. 打开 https://github.com/settings/tokens/new?scopes=repo&description=blog-admin\n2. 生成新 Token 后重新登录');
+          location.reload();
+          return;
+        }
+        showStatus('加载失败: ' + msg, 'error');
       }
     }
 
