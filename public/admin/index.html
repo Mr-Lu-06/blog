@@ -320,6 +320,7 @@
         <button onclick="newDiary()">+ 写日记</button>
         <button onclick="newGallery()">+ 新建相册</button>
         <button onclick="deleteFile()" id="btn-delete" style="color:#d32f2f;border-color:#d32f2f;display:none;">删除</button>
+        <button onclick="unhideAll()" id="btn-unhide" style="display:none;">恢复隐藏</button>
         <button onclick="logout()">退出</button>
       </div>
     </div>
@@ -446,6 +447,10 @@
           ...(Array.isArray(diaryFiles) ? diaryFiles.map(f => ({ ...f, _type: 'diary' })) : []),
           ...(Array.isArray(galleryFiles) ? galleryFiles.map(f => ({ ...f, _type: 'gallery' })) : []),
         ];
+
+        // 过滤已隐藏的文件
+        var hidden = JSON.parse(localStorage.getItem('hidden_files') || '[]');
+        files = files.filter(function(f) { return hidden.indexOf(f.path) === -1; });
 
         renderSidebar();
         showStatus('加载完成', 'success');
@@ -725,11 +730,19 @@
         showStatus('已删除', 'success');
         loadFiles();
       } catch (e) {
-        // 403 = 权限不足或 SHA 过期
+        // 403 = Token 无删除权限，改用本地隐藏
         if (e.status === 403) {
-          showStatus('删除失败：token 权限不足或文件已变更，请刷新页面重试', 'error');
-          document.getElementById('btn-delete').disabled = false;
-          document.getElementById('btn-delete').textContent = '删除';
+          var hidden = JSON.parse(localStorage.getItem('hidden_files') || '[]');
+          hidden.push(currentFile.path);
+          localStorage.setItem('hidden_files', JSON.stringify(hidden));
+          delete allFilesCache[currentFile.path];
+          currentFile = null;
+          document.getElementById('editor').innerHTML = '';
+          document.getElementById('editor').classList.remove('active');
+          document.getElementById('empty-state').style.display = 'flex';
+          document.getElementById('btn-delete').style.display = 'none';
+          showStatus('已从列表隐藏（文件仍在 GitHub）', 'success');
+          loadFiles();
           return;
         }
         // 404 = 文件已不存在，直接清理本地缓存
