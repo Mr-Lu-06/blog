@@ -773,6 +773,13 @@
     }
 
 
+    // ===== Unhide =====
+    function unhideAll() {
+      localStorage.removeItem('hidden_files');
+      showStatus('已恢复所有隐藏文件', 'success');
+      loadFiles();
+    }
+
     // ===== New File =====
     function newDiary() {
       const today = new Date().toISOString().split('T')[0];
