@@ -29,12 +29,6 @@ const videoSrc = '/video/hero.mp4';
         </h1>
         <p class="hero-subtitle">用文字和照片，珍藏每一天的小美好</p>
       </div>
-      <div class="hero-decoration">
-        <span class="deco-item deco-1"></span>
-        <span class="deco-item deco-2"></span>
-        <span class="deco-item deco-3"></span>
-        <span class="deco-item deco-4"></span>
-      </div>
     </section>
   )}
 
@@ -62,7 +56,7 @@ const videoSrc = '/video/hero.mp4';
                     mood={entry.data.mood}
                     weather={entry.data.weather}
                     featured_image={entry.data.featured_image}
-                    excerpt={entry.body?.replace(/[#*>`-]/g, '').substring(0, 100).trim() + '...'}
+                    excerpt={(entry.body || '').replace(/[#*>`-]/g, '').substring(0, 100).trim() || '...'}
                   />
                 </div>
               ))}
@@ -149,45 +143,10 @@ const videoSrc = '/video/hero.mp4';
     color: var(--text-primary);
   }
 
-  .hero-wave {
-    display: inline-block;
-    animation: wave 1.5s ease-in-out infinite;
-  }
-
-  @keyframes wave {
-    0%, 100% { transform: rotate(0); }
-    25% { transform: rotate(15deg); }
-    75% { transform: rotate(-15deg); }
-  }
-
   .hero-subtitle {
     font-size: 1rem;
     color: var(--text-secondary);
     margin: 0;
-  }
-
-  .hero-decoration {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  .deco-item {
-    position: absolute;
-    font-size: 1.6rem;
-    opacity: 0.3;
-    animation: float 6s ease-in-out infinite;
-  }
-
-  .deco-1 { top: 15%; right: 15%; animation-delay: 0s; }
-  .deco-2 { top: 60%; right: 25%; animation-delay: -2s; font-size: 1.2rem; }
-  .deco-3 { top: 20%; right: 8%; animation-delay: -4s; font-size: 1rem; }
-  .deco-4 { top: 70%; right: 12%; animation-delay: -1s; font-size: 1.4rem; }
-
-  @keyframes float {
-    0%, 100% { transform: translateY(0) rotate(0deg); }
-    50% { transform: translateY(-12px) rotate(8deg); }
   }
 
   /* ===== Two-column Layout ===== */
