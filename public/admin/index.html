@@ -343,12 +343,12 @@
     const ADMIN_USER = 'admin';
     const ADMIN_PASS = 'admin123';
 
-    let token = '';
-    let files = [];
-    let currentFile = null;
+    var token = localStorage.getItem('gh_token') || '';
+    var files = [];
+    var currentFile = null;
 
     // ===== Auth =====
-    if (localStorage.getItem('admin_logged_in')) { showApp(); loadFiles(); }
+    if (localStorage.getItem('admin_logged_in') && token) { showApp(); loadFiles(); }
 
     function login() {
       var u = document.getElementById('login-user').value.trim();
