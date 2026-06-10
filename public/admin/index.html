@@ -320,6 +320,7 @@
       <div class="topbar-actions">
         <button onclick="newDiary()">+ 写日记</button>
         <button onclick="newGallery()">+ 新建相册</button>
+        <button onclick="deleteFile()" id="btn-delete" style="color:#d32f2f;border-color:#d32f2f;display:none;">删除</button>
         <button onclick="logout()">退出</button>
       </div>
     </div>
@@ -459,6 +460,7 @@
         currentFile = { ...data, _content: content, path };
         renderEditor(content, path);
         document.getElementById('empty-state').style.display = 'none';
+        document.getElementById('btn-delete').style.display = 'inline-block';
         renderSidebar();
         showStatus('已加载', 'success');
       } catch (e) {
@@ -626,6 +628,10 @@
 
         // Clear cache for this file
         delete allFilesCache[currentFile.path];
+        // 重新获取文件信息以更新 sha
+        var newData = await gh('/contents/' + currentFile.path);
+        currentFile.sha = newData.sha;
+        document.getElementById('btn-delete').style.display = 'inline-block';
         showStatus('保存成功！Netlify 自动部署中...', 'success');
         document.getElementById('btn-save').textContent = '已保存 ✓';
         setTimeout(() => {
@@ -639,6 +645,42 @@
       }
     }
 
+    // ===== Delete File =====
+    async function deleteFile() {
+      if (!currentFile) return;
+      if (!currentFile.sha) {
+        showStatus('新建的文章尚未保存到 GitHub', 'error');
+        return;
+      }
+      var title = document.getElementById('editor-title') ? document.getElementById('editor-title').value.trim() : currentFile.path;
+      if (!confirm('确定要删除「' + title + '」吗？\n\n此操作不可撤销！')) return;
+
+      document.getElementById('btn-delete').disabled = true;
+      document.getElementById('btn-delete').textContent = '删除中...';
+      showStatus('正在删除...', 'loading');
+
+      try {
+        await gh('/contents/' + currentFile.path, 'DELETE', {
+          message: '删除: ' + title,
+          sha: currentFile.sha,
+          branch: BRANCH,
+        });
+
+        delete allFilesCache[currentFile.path];
+        currentFile = null;
+        document.getElementById('editor').innerHTML = '';
+        document.getElementById('editor').classList.remove('active');
+        document.getElementById('empty-state').style.display = 'flex';
+        document.getElementById('btn-delete').style.display = 'none';
+        showStatus('已删除', 'success');
+        loadFiles();
+      } catch (e) {
+        showStatus('删除失败: ' + e.message, 'error');
+        document.getElementById('btn-delete').disabled = false;
+        document.getElementById('btn-delete').textContent = '删除';
+      }
+    }
+
     // ===== New File =====
     function newDiary() {
       const today = new Date().toISOString().split('T')[0];
@@ -649,6 +691,7 @@
       allFilesCache[path] = { content: btoa(unescape(encodeURIComponent(content))) };
       renderEditor(content, path);
       document.getElementById('empty-state').style.display = 'none';
+      document.getElementById('btn-delete').style.display = 'none';
     }
 
     function newGallery() {
@@ -660,6 +703,7 @@
       allFilesCache[path] = { content: btoa(unescape(encodeURIComponent(content))) };
       renderEditor(content, path);
       document.getElementById('empty-state').style.display = 'none';
+      document.getElementById('btn-delete').style.display = 'none';
     }
 
     // ===== Utils =====
