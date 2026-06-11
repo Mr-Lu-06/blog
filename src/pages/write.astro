@@ -57,10 +57,13 @@ const sorted = sortByDate(diaries);
       <h2>已有日记</h2>
       <div class="diary-list-items">
         {sorted.map(d => (
-          <a href={`/diary/${d.id}`} class="diary-list-item">
-            <span class="dli-title">{d.data.title}</span>
-            <span class="dli-date">{d.data.date.toISOString().split('T')[0]}</span>
-          </a>
+          <div class="diary-list-item">
+            <a href={`/diary/${d.id}`} class="diary-list-link">
+              <span class="dli-title">{d.data.title}</span>
+              <span class="dli-date">{d.data.date.toISOString().split('T')[0]}</span>
+            </a>
+            <button class="dli-delete" data-slug={d.id} title="删除">×</button>
+          </div>
         ))}
       </div>
     </div>
@@ -229,20 +232,53 @@ const sorted = sortByDate(diaries);
 
   .diary-list-item {
     display: flex;
-    justify-content: space-between;
-    padding: 10px 14px;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
     background: var(--bg-card);
     border: 1px solid var(--border-color);
     border-radius: 8px;
-    text-decoration: none;
-    color: inherit;
     transition: all 0.2s;
   }
 
   .diary-list-item:hover { border-color: var(--accent); }
 
+  .diary-list-link {
+    flex: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    color: inherit;
+    padding: 2px 0;
+  }
+
   .dli-title { font-size: 0.9rem; font-weight: 600; }
   .dli-date { font-size: 0.8rem; color: var(--text-muted); }
+
+  .dli-delete {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    flex-shrink: 0;
+    line-height: 1;
+    padding: 0;
+  }
+  .dli-delete:hover {
+    border-color: #d32f2f;
+    color: #d32f2f;
+    background: #fff5f5;
+  }
 
   #toast {
     position: fixed;
@@ -278,6 +314,13 @@ const sorted = sortByDate(diaries);
   document.getElementById('btn-publish').addEventListener('click', publish);
   document.getElementById('btn-save-draft').addEventListener('click', saveDraft);
   document.getElementById('btn-preview-toggle').addEventListener('click', togglePreview);
+
+  // 删除日记（事件委托）
+  document.querySelector('.diary-list-items').addEventListener('click', function(e) {
+    var btn = e.target.closest('.dli-delete');
+    if (!btn) return;
+    deleteDiary(btn.dataset.slug);
+  });
 
   // 初始化
   const today = new Date().toISOString().split('T')[0];
@@ -371,6 +414,34 @@ const sorted = sortByDate(diaries);
     } catch(e) {
       toast('发布失败: ' + e.message, 'error');
     }
+  }
+
+  async function deleteDiary(slug) {
+    if (!confirm('确定要删除这篇日记吗？')) return;
+    var token = getToken();
+    if (!token) return toast('请先填写 GitHub Token', 'error');
+    var filepath = 'src/content/diary/' + slug + '.md';
+    toast('正在删除...', 'loading');
+    try {
+      var res = await fetch('https://api.github.com/repos/' + REPO + '/contents/' + filepath, {
+        headers: { Authorization: 'Bearer ' + token, Accept: 'application/vnd.github.v3+json' }
+      });
+      if (res.status === 404) return toast('文件不存在', 'error');
+      if (!res.ok) return toast('获取文件信息失败', 'error');
+      var info = await res.json();
+      var delRes = await fetch('https://api.github.com/repos/' + REPO + '/contents/' + filepath, {
+        method: 'DELETE',
+        headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json', Accept: 'application/vnd.github.v3+json' },
+        body: JSON.stringify({ message: '删除: ' + (info.name || slug), sha: info.sha, branch: 'main' }),
+      });
+      if (!delRes.ok) {
+        if (delRes.status === 403) return toast('Token 无删除权限，请在 GitHub 上直接删除', 'error');
+        var err = await delRes.text();
+        throw new Error(delRes.status + ': ' + err.substring(0, 100));
+      }
+      toast('已删除，部署中...', 'success');
+      setTimeout(function() { location.reload(); }, 2000);
+    } catch(e) { toast('删除失败: ' + e.message, 'error'); }
   }
 
   function saveDraft() {
