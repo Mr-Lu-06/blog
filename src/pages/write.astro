@@ -12,15 +12,15 @@ const sorted = sortByDate(diaries);
     <div class="write-header">
       <h1>写日记</h1>
       <div class="write-actions">
-        <button class="t-btn" onclick="saveDraft()">💾 保存草稿</button>
-        <button class="t-btn primary" onclick="publish()">📤 发布</button>
+        <button class="t-btn" id="btn-save-draft">💾 保存草稿</button>
+        <button class="t-btn primary" id="btn-publish">📤 发布</button>
       </div>
     </div>
 
     <!-- Token 设置 -->
     <div class="token-bar" id="token-bar">
       <input type="password" id="token-input" placeholder="GitHub Token（首次使用需填写）" />
-      <button class="t-btn small" onclick="saveToken()">保存</button>
+      <button class="t-btn small" id="btn-save-token">保存</button>
       <a href="https://github.com/settings/tokens/new?scopes=repo&description=blog-write" target="_blank" class="token-help">创建 Token →</a>
     </div>
 
@@ -47,7 +47,7 @@ const sorted = sortByDate(diaries);
 
       <!-- 预览 -->
       <div class="preview-area" id="preview-area">
-        <div class="preview-toggle" onclick="togglePreview()">📖 预览</div>
+        <div class="preview-toggle" id="btn-preview-toggle">📖 预览</div>
         <div id="preview-body" class="preview-body" style="display:none;"></div>
       </div>
     </div>
@@ -262,7 +262,7 @@ const sorted = sortByDate(diaries);
   #toast.loading { background: #cce5ff; color: #004085; border: 1px solid #b8daff; }
 </style>
 
-<script is:inline>
+<script>
   const REPO = 'Mr-Lu-06/blog';
   const BRANCH = 'main';
 
@@ -272,6 +272,12 @@ const sorted = sortByDate(diaries);
     clearTimeout(t._t);
     t._t = setTimeout(() => t.classList.remove('show'), 3000);
   };
+
+  // 绑定按钮事件
+  document.getElementById('btn-save-token').addEventListener('click', saveToken);
+  document.getElementById('btn-publish').addEventListener('click', publish);
+  document.getElementById('btn-save-draft').addEventListener('click', saveDraft);
+  document.getElementById('btn-preview-toggle').addEventListener('click', togglePreview);
 
   // 初始化
   const today = new Date().toISOString().split('T')[0];
