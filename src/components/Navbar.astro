@@ -1,11 +1,10 @@
 ---
 ---
 
-<nav class="navbar">
-  <!-- 网格线条装饰 -->
-  <div class="navbar-grid"></div>
+<nav class="navbar glass">
   <div class="navbar-inner container">
     <a href="/" class="navbar-brand">
+      <span class="brand-dot"></span>
       <span class="brand-text">我的blog</span>
     </a>
     <div class="navbar-links">
@@ -18,86 +17,84 @@
 
 <style>
   .navbar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
+    position: sticky;
+    top: 8px;
     z-index: 100;
-    background: rgba(10, 10, 10, 0.65);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-    overflow: hidden;
-  }
-
-  /* 网格线条装饰（参考 forum.hanakos.cc 风格） */
-  .navbar-grid {
-    position: absolute;
-    inset: 0;
-    background-image: repeating-linear-gradient(
-      0deg,
-      rgba(255, 255, 255, 0.03),
-      rgba(255, 255, 255, 0.03) 1px,
-      transparent 1px,
-      transparent 3px
-    );
-    pointer-events: none;
-    z-index: 0;
+    margin: 8px 12px 0;
+    border-radius: var(--radius-lg);
+    transition: all 0.4s ease;
   }
 
   .navbar-inner {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    height: 52px;
-    gap: 24px;
-    position: relative;
-    z-index: 1;
+    height: 56px;
+    gap: 16px;
+    padding: 0 20px !important;
   }
 
   .navbar-brand {
-    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1.15rem;
     font-weight: 700;
-    color: rgba(255, 255, 255, 0.9) !important;
+    color: var(--text-primary) !important;
     text-decoration: none;
-    letter-spacing: 0.03em;
-    transition: opacity 0.2s;
   }
 
-  .navbar-brand:hover { opacity: 0.8; }
+  .brand-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--gradient-warm);
+    display: inline-block;
+    flex-shrink: 0;
+  }
+
+  .brand-text {
+    background: var(--gradient-warm);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
 
   .navbar-links {
     display: flex;
     align-items: center;
     gap: 4px;
+    flex: 1;
+    justify-content: center;
   }
 
   .nav-link {
-    padding: 6px 18px;
-    border-radius: 6px;
-    color: rgba(255, 255, 255, 0.6);
-    font-size: 0.85rem;
+    padding: 6px 16px;
+    border-radius: var(--radius-xs);
+    color: var(--text-secondary);
+    font-size: 0.9rem;
     font-weight: 500;
-    transition: all 0.2s ease;
-    letter-spacing: 0.02em;
+    transition: all 0.25s ease;
   }
 
   .nav-link:hover {
-    color: rgba(255, 255, 255, 0.95);
-    background: rgba(255, 255, 255, 0.06);
+    background: var(--accent-soft);
+    color: var(--accent);
+    transform: translateY(-1px);
   }
 
   @media (max-width: 480px) {
-    .navbar-inner {
-      height: 46px;
-      gap: 12px;
+    .navbar {
+      margin: 4px 4px 0;
+      border-radius: var(--radius);
+      top: 4px;
     }
 
-    .navbar-brand { font-size: 1rem; }
+    .brand-emoji { font-size: 1.2rem; }
 
     .nav-link {
-      padding: 4px 12px;
-      font-size: 0.8rem;
+      padding: 4px 10px;
+      font-size: 0.82rem;
     }
   }
 </style>
