@@ -1,10 +1,13 @@
 ---
-// 音乐馆 - 参考 forum.hanakos.cc/music 设计
-import { getCollection } from 'astro:content';
-import { sortByDate } from '../utils/date';
+// 音乐馆 - 歌曲列表配置
+// 歌曲文件放在 public/music/，封面图放在 public/images/
 
-const diaries = await getCollection('diary');
-const sorted = sortByDate(diaries);
+const playlist = [
+  { title: '富士山下', artist: '陈奕迅', src: '/music/富士山下 - 陈奕迅.mp3', cover: '' },
+  { title: '孤雏', artist: 'AGA', src: '/music/孤雏 - AGA.mp3', cover: '' },
+  { title: '十面埋伏', artist: '陈奕迅', src: '/music/十面埋伏 - 陈奕迅.mp3', cover: '' },
+  { title: '戒不掉（原声版）', artist: '欧阳耀莹', src: '/music/戒不掉（原声版） - 欧阳耀莹.mp3', cover: '' },
+];
 ---
 
 <!doctype html>
@@ -190,11 +193,11 @@ const sorted = sortByDate(diaries);
   <main class="music-content">
     <div class="music-header">
       <h1>Join The Rhythm</h1>
-      <p>本地音乐库 · 共 {sorted.length} 首</p>
+      <p>本地音乐库 · 共 {playlist.length} 首</p>
       <a href="/" class="back-link">← 回到首页</a>
     </div>
 
-    <div class="track-grid" id="track-grid">
+    <div class="track-grid" id="track-grid" data-playlist={JSON.stringify(playlist)}>
     </div>
   </main>
 
@@ -203,15 +206,9 @@ const sorted = sortByDate(diaries);
 
   <script is:inline>
     (function() {
-      // 歌曲列表 —— 从现有音乐文件加载
-      var playlist = [
-        { title: '富士山下', artist: '陈奕迅', src: '/music/富士山下 - 陈奕迅.mp3' },
-        { title: '孤雏', artist: 'AGA', src: '/music/孤雏 - AGA.mp3' },
-        { title: '十面埋伏', artist: '陈奕迅', src: '/music/十面埋伏 - 陈奕迅.mp3' },
-        { title: '戒不掉（原声版）', artist: '欧阳耀莹', src: '/music/戒不掉（原声版） - 欧阳耀莹.mp3' },
-      ];
+      var grid = document.getElementById('track-grid');
+      var playlist = JSON.parse(grid.getAttribute('data-playlist'));
 
-      // 生成随机色块
       var colors = [
         'linear-gradient(135deg, #1a3a5c, #0d2818)',
         'linear-gradient(160deg, #3b4e0e, #0a2a09)',
@@ -233,9 +230,13 @@ const sorted = sortByDate(diaries);
         card.setAttribute('data-idx', i);
 
         var bg = colors[i % colors.length];
+        var artHtml = song.cover
+          ? '<img src="' + song.cover + '" alt="' + escapeHtml(song.title) + '" />'
+          : '<div class="track-card-art-placeholder">♪</div>';
+
         card.innerHTML =
           '<div class="track-card-art" style="background:' + bg + '">' +
-            '<div class="track-card-art-placeholder">♪</div>' +
+            artHtml +
           '</div>' +
           '<div class="track-card-info">' +
             '<div class="track-card-title">' + escapeHtml(song.title) + '</div>' +
