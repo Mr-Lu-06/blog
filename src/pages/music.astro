@@ -10,6 +10,7 @@ const playlist = [
 ];
 ---
 
+
 <!doctype html>
 <html lang="zh-CN">
 <head>
@@ -197,7 +198,7 @@ const playlist = [
       <a href="/" class="back-link">← 回到首页</a>
     </div>
 
-    <div class="track-grid" id="track-grid" data-playlist={JSON.stringify(playlist)}>
+    <div class="track-grid" id="track-grid">
     </div>
   </main>
 
@@ -207,7 +208,12 @@ const playlist = [
   <script is:inline>
     (function() {
       var grid = document.getElementById('track-grid');
-      var playlist = JSON.parse(grid.getAttribute('data-playlist'));
+      var playlist = [
+        { title: '富士山下', artist: '陈奕迅', src: '/music/富士山下 - 陈奕迅.mp3', cover: '/images/富士山下.jpg' },
+        { title: '孤雏', artist: 'AGA', src: '/music/孤雏 - AGA.mp3', cover: '/images/孤雏.jpg' },
+        { title: '十面埋伏', artist: '陈奕迅', src: '/music/十面埋伏 - 陈奕迅.mp3', cover: '/images/十面埋伏.jpg' },
+        { title: '戒不掉（原声版）', artist: '欧阳耀莹', src: '/music/戒不掉（原声版） - 欧阳耀莹.mp3', cover: '/images/戒不掉.jpg' },
+      ];
 
       var colors = [
         'linear-gradient(135deg, #1a3a5c, #0d2818)',
