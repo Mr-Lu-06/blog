@@ -1,0 +1,415 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+import { sortByDate } from '../utils/date';
+
+const diaries = await getCollection('diary');
+const sorted = sortByDate(diaries);
+---
+
+<BaseLayout title="写日记" description="在线写日记">
+  <div class="write-page container">
+    <div class="write-header">
+      <h1>写日记</h1>
+      <div class="write-actions">
+        <button class="t-btn" onclick="saveDraft()">💾 保存草稿</button>
+        <button class="t-btn primary" onclick="publish()">📤 发布</button>
+      </div>
+    </div>
+
+    <!-- Token 设置 -->
+    <div class="token-bar" id="token-bar">
+      <input type="password" id="token-input" placeholder="GitHub Token（首次使用需填写）" />
+      <button class="t-btn small" onclick="saveToken()">保存</button>
+      <a href="https://github.com/settings/tokens/new?scopes=repo&description=blog-write" target="_blank" class="token-help">创建 Token →</a>
+    </div>
+
+    <!-- 表单 -->
+    <div class="write-form">
+      <input type="text" id="field-title" class="field-title" placeholder="标题" />
+
+      <div class="field-row">
+        <input type="date" id="field-date" class="field-input" />
+        <select id="field-mood" class="field-input">
+          <option value="">心情</option>
+          <option>开心</option><option>平静</option><option>期待</option>
+          <option>感动</option><option>疲惫</option><option>郁闷</option>
+        </select>
+        <select id="field-weather" class="field-input">
+          <option value="">天气</option>
+          <option>晴天</option><option>多云</option><option>阴天</option>
+          <option>小雨</option><option>大雨</option><option>雪天</option>
+        </select>
+        <input type="text" id="field-tags" class="field-input" placeholder="标签（逗号分隔）" />
+      </div>
+
+      <textarea id="field-body" class="field-body" placeholder="写点什么..." rows="15"></textarea>
+
+      <!-- 预览 -->
+      <div class="preview-area" id="preview-area">
+        <div class="preview-toggle" onclick="togglePreview()">📖 预览</div>
+        <div id="preview-body" class="preview-body" style="display:none;"></div>
+      </div>
+    </div>
+
+    <!-- 已有日记列表 -->
+    <div class="diary-list">
+      <h2>已有日记</h2>
+      <div class="diary-list-items">
+        {sorted.map(d => (
+          <a href={`/diary/${d.id}`} class="diary-list-item">
+            <span class="dli-title">{d.data.title}</span>
+            <span class="dli-date">{d.data.date.toISOString().split('T')[0]}</span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+</BaseLayout>
+
+<style>
+  .write-page {
+    max-width: 720px;
+    padding: 32px 20px 60px;
+  }
+
+  .write-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .write-header h1 { font-size: 1.5rem; font-weight: 800; margin: 0; }
+
+  .write-actions { display: flex; gap: 8px; }
+
+  .t-btn {
+    padding: 8px 20px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--bg-card);
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s;
+  }
+  .t-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .t-btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .t-btn.primary:hover { background: var(--accent-hover); }
+  .t-btn.small { padding: 6px 14px; font-size: 0.82rem; }
+  .t-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .token-bar {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    padding: 12px 16px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+
+  .token-bar input {
+    flex: 1;
+    min-width: 150px;
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-family: inherit;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    outline: none;
+  }
+  .token-bar input:focus { border-color: var(--accent); }
+
+  .token-help { font-size: 0.82rem; color: var(--accent); white-space: nowrap; }
+
+  .write-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+
+  .field-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    padding: 12px 0;
+    border: none;
+    border-bottom: 2px solid var(--border-color);
+    background: transparent;
+    color: var(--text-primary);
+    outline: none;
+    font-family: inherit;
+    transition: border-color 0.2s;
+  }
+  .field-title:focus { border-bottom-color: var(--accent); }
+  .field-title::placeholder { color: var(--text-muted); }
+
+  .field-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .field-input {
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 0.85rem;
+    background: var(--bg-card);
+    color: var(--text-primary);
+    font-family: inherit;
+    outline: none;
+    flex: 1;
+    min-width: 120px;
+  }
+  .field-input:focus { border-color: var(--accent); }
+
+  .field-body {
+    width: 100%;
+    min-height: 300px;
+    padding: 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    font-size: 0.95rem;
+    line-height: 1.7;
+    font-family: inherit;
+    background: var(--bg-card);
+    color: var(--text-primary);
+    outline: none;
+    resize: vertical;
+  }
+  .field-body:focus { border-color: var(--accent); }
+
+  .preview-area { margin-bottom: 20px; }
+
+  .preview-toggle {
+    font-size: 0.85rem;
+    color: var(--accent);
+    cursor: pointer;
+    padding: 4px 0;
+    user-select: none;
+  }
+  .preview-toggle:hover { opacity: 0.8; }
+
+  .preview-body {
+    padding: 16px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    line-height: 1.8;
+    font-size: 0.92rem;
+  }
+  .preview-body h1 { font-size: 1.3rem; margin: 0.5em 0; font-weight: 700; }
+  .preview-body h2 { font-size: 1.15rem; margin: 0.5em 0; font-weight: 700; }
+  .preview-body code { background: var(--bg-secondary); padding: 2px 6px; border-radius: 4px; font-size: 0.85em; }
+  .preview-body blockquote { border-left: 3px solid var(--accent); padding-left: 12px; margin: 8px 0; color: var(--text-secondary); }
+
+  .diary-list h2 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 0 0 12px;
+  }
+
+  .diary-list-items {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .diary-list-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 14px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.2s;
+  }
+
+  .diary-list-item:hover { border-color: var(--accent); }
+
+  .dli-title { font-size: 0.9rem; font-weight: 600; }
+  .dli-date { font-size: 0.8rem; color: var(--text-muted); }
+
+  #toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 10px 24px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    z-index: 999;
+    display: none;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  }
+  #toast.show { display: block; }
+  #toast.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+  #toast.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+  #toast.loading { background: #cce5ff; color: #004085; border: 1px solid #b8daff; }
+</style>
+
+<script>
+  const REPO = 'Mr-Lu-06/blog';
+  const BRANCH = 'main';
+
+  const toast = (msg, type) => {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.className = type + ' show';
+    clearTimeout(t._t);
+    t._t = setTimeout(() => t.classList.remove('show'), 3000);
+  };
+
+  // 初始化
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('field-date').value = today;
+
+  const saved = localStorage.getItem('write_token');
+  if (saved) {
+    document.getElementById('token-input').value = saved;
+  }
+
+  function saveToken() {
+    const v = document.getElementById('token-input').value.trim();
+    if (!v) return toast('请输入 Token', 'error');
+    localStorage.setItem('write_token', v);
+    toast('Token 已保存', 'success');
+  }
+
+  function getToken() {
+    let t = document.getElementById('token-input').value.trim();
+    if (!t) t = localStorage.getItem('write_token');
+    return t;
+  }
+
+  function getContent() {
+    const title = document.getElementById('field-title').value.trim() || '未命名';
+    const date = document.getElementById('field-date').value || today;
+    const mood = document.getElementById('field-mood').value;
+    const weather = document.getElementById('field-weather').value;
+    const tags = document.getElementById('field-tags').value.split(/[,，\s]+/).filter(Boolean);
+    const body = document.getElementById('field-body').value || ' ';
+
+    let yaml = '---\ntitle: "' + title.replace(/"/g, '\\"') + '"\ndate: ' + date + '\ntags: ' + JSON.stringify(tags) + '\n';
+    if (mood) yaml += 'mood: "' + mood + '"\n';
+    if (weather) yaml += 'weather: "' + weather + '"\n';
+    yaml += '---\n\n';
+
+    const slug = date + '-' + title.replace(/[^一-龥a-zA-Z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '').substring(0, 50);
+    const filepath = 'src/content/diary/' + slug + '.md';
+
+    return { title, date, slug, filepath, yaml, body };
+  }
+
+  async function publish() {
+    const token = getToken();
+    if (!token) return toast('请先填写 GitHub Token', 'error');
+
+    const data = getContent();
+    const fullContent = data.yaml + data.body;
+
+    toast('正在发布...', 'loading');
+
+    try {
+      // Check if file exists
+      let sha = null;
+      try {
+        const res = await fetch('https://api.github.com/repos/' + REPO + '/contents/' + data.filepath, {
+          headers: { Authorization: 'Bearer ' + token, Accept: 'application/vnd.github.v3+json' }
+        });
+        if (res.ok) {
+          const info = await res.json();
+          sha = info.sha;
+        }
+      } catch {}
+
+      const body = {
+        message: '日记: ' + data.title,
+        content: btoa(unescape(encodeURIComponent(fullContent))),
+        branch: BRANCH,
+      };
+      if (sha) body.sha = sha;
+
+      const res = await fetch('https://api.github.com/repos/' + REPO + '/contents/' + data.filepath, {
+        method: 'PUT',
+        headers: {
+          Authorization: 'Bearer ' + token,
+          'Content-Type': 'application/json',
+          Accept: 'application/vnd.github.v3+json',
+        },
+        body: JSON.stringify(body),
+      });
+
+      if (!res.ok) {
+        const err = await res.text();
+        throw new Error(res.status + ': ' + err.substring(0, 100));
+      }
+
+      toast('已发布！Cloudflare 部署中...', 'success');
+      document.getElementById('field-body').value = '';
+      document.getElementById('field-title').value = '';
+
+    } catch(e) {
+      toast('发布失败: ' + e.message, 'error');
+    }
+  }
+
+  function saveDraft() {
+    const title = document.getElementById('field-title').value;
+    const body = document.getElementById('field-body').value;
+    const date = document.getElementById('field-date').value;
+    const mood = document.getElementById('field-mood').value;
+    const tags = document.getElementById('field-tags').value;
+
+    const draft = JSON.stringify({ title, body, date, mood, tags });
+    localStorage.setItem('write_draft', draft);
+    toast('草稿已保存', 'success');
+  }
+
+  // 恢复草稿
+  try {
+    const draft = JSON.parse(localStorage.getItem('write_draft'));
+    if (draft) {
+      document.getElementById('field-title').value = draft.title || '';
+      document.getElementById('field-body').value = draft.body || '';
+      if (draft.date) document.getElementById('field-date').value = draft.date;
+      if (draft.mood) document.getElementById('field-mood').value = draft.mood;
+      if (draft.tags) document.getElementById('field-tags').value = draft.tags;
+    }
+  } catch {}
+
+  function togglePreview() {
+    const pb = document.getElementById('preview-body');
+    if (pb.style.display === 'none') {
+      pb.style.display = 'block';
+      pb.innerHTML = simpleMD(document.getElementById('field-body').value);
+    } else {
+      pb.style.display = 'none';
+    }
+  }
+
+  function simpleMD(t) {
+    return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/^### (.+)$/gm,'<h3>$1</h3>')
+      .replace(/^## (.+)$/gm,'<h2>$1</h2>')
+      .replace(/^# (.+)$/gm,'<h1>$1</h1>')
+      .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+      .replace(/\*(.+?)\*/g,'<em>$1</em>')
+      .replace(/`([^`]+)`/g,'<code>$1</code>')
+      .replace(/^> (.+)$/gm,'<blockquote>$1</blockquote>')
+      .split('\n\n').map(p => p.trim() ? '<p>' + p.replace(/\n/g,'<br/>') + '</p>' : '').join('');
+  }
+</script>
