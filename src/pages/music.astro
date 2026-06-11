@@ -103,8 +103,10 @@ const playlist = [
     /* ===== 歌曲网格 ===== */
     .track-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
       gap: 32px;
+      max-width: 700px;
+      margin: 0 auto;
     }
     .track-card {
       background: linear-gradient(160deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01));
@@ -138,15 +140,15 @@ const playlist = [
       font-size: 3rem;
     }
     .track-card-info {
-      padding: 12px 16px; background: rgba(0,0,0,0.55); backdrop-filter: blur(12px);
+      padding: 10px 12px; background: rgba(0,0,0,0.55); backdrop-filter: blur(12px);
     }
     .track-card-title {
-      font-size: 0.9rem; font-weight: 600; color: #fff;
+      font-size: 0.82rem; font-weight: 600; color: #fff;
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
       margin-bottom: 2px;
     }
     .track-card-artist {
-      font-size: 0.78rem; color: rgba(255,255,255,0.45);
+      font-size: 0.72rem; color: rgba(255,255,255,0.45);
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
     .track-card-playing {
