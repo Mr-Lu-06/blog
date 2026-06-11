@@ -420,6 +420,8 @@ const sorted = sortByDate(diaries);
     if (!confirm('确定要删除这篇日记吗？')) return;
     var token = getToken();
     if (!token) return toast('请先填写 GitHub Token', 'error');
+    // 去除可能重复的 .md 后缀
+    slug = slug.replace(/\.md$/, '');
     var filepath = 'src/content/diary/' + slug + '.md';
     toast('正在删除...', 'loading');
     try {
