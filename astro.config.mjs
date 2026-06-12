@@ -5,7 +5,7 @@ import react from '@astrojs/react';
 // https://astro.build/config
 export default defineConfig({
   integrations: [react()],
-  site: 'https://my-blog.netlify.app',
+  site: 'https://blog.zi9407661.workers.dev/',
   markdown: {
     shikiConfig: {
       theme: 'github-dark',
