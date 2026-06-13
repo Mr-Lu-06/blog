@@ -148,12 +148,11 @@
     }
 
     /* ===== 按钮行 ===== */
-    .play-row {
+    .btn-row {
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 24px;
-      padding-top: 16px;
     }
     .btn {
       background: none; border: none; color: rgba(255,255,255,0.55);
@@ -173,6 +172,7 @@
       align-items: center;
       gap: 6px;
       position: relative;
+      margin-left: auto;
     }
     .vol-slider-wrap {
       position: absolute;
@@ -209,7 +209,7 @@
     }
 
     .btn-play {
-      width: 56px; height: 56px;
+      width: 52px; height: 52px;
       border-radius: 50%;
       background: rgba(255,255,255,0.12);
       color: #fff;
@@ -219,7 +219,7 @@
       color: #fff;
     }
     .btn-play svg {
-      width: 26px; height: 26px;
+      width: 24px; height: 24px;
       margin-left: 2px;
     }
     .btn-play.playing svg {
@@ -263,7 +263,7 @@
         <span id="time-total">0:00</span>
       </div>
 
-      <div class="play-row">
+      <div class="btn-row">
         <button class="btn btn-play" id="btn-play" title="播放">
           <svg viewBox="0 0 24 24" fill="currentColor">
             <polygon points="8 5 19 12 8 19 8 5"/>
