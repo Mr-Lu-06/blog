@@ -18,7 +18,11 @@
       align-items: center;
       justify-content: center;
       overflow: hidden;
+      cursor: grab;
+      user-select: none;
+      -webkit-user-select: none;
     }
+    body:active { cursor: grabbing; }
 
     /* ===== 视频背景 ===== */
     .bg-video {
@@ -37,13 +41,13 @@
 
     /* ===== 返回按钮 ===== */
     .close-btn {
-      position: fixed; top: 20px; right: 24px; z-index: 100;
-      width: 40px; height: 40px; border-radius: 50%;
+      position: fixed; top: 12px; right: 14px; z-index: 100;
+      width: 28px; height: 28px; border-radius: 50%;
       background: rgba(0,0,0,0.35); backdrop-filter: blur(8px);
       border: 1px solid rgba(255,255,255,0.1);
       cursor: pointer;
       display: flex; align-items: center; justify-content: center;
-      font-size: 1.3rem; color: rgba(255,255,255,0.7);
+      font-size: 0.95rem; color: rgba(255,255,255,0.7);
       transition: all 0.2s;
       text-decoration: none;
     }
@@ -52,8 +56,8 @@
     /* ===== 播放器卡片 ===== */
     .player-card {
       position: relative; z-index: 1;
-      width: 340px;
-      border-radius: 24px;
+      width: 220px;
+      border-radius: 14px;
       background: rgba(20,20,25,0.35);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
@@ -66,7 +70,7 @@
     /* ===== 封面区 ===== */
     .cover-area {
       width: 100%;
-      aspect-ratio: 1;
+      aspect-ratio: 3 / 2;
       position: relative;
       overflow: hidden;
     }
@@ -81,7 +85,7 @@
 
     /* ===== 控制区 ===== */
     .controls {
-      padding: 24px 28px 28px;
+      padding: 12px 16px 16px;
       background: rgba(10,10,14,0.55);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
@@ -90,11 +94,11 @@
 
     /* ===== 歌曲信息 ===== */
     .song-info {
-      margin-bottom: 20px;
+      margin-bottom: 10px;
       text-align: left;
     }
     .song-title {
-      font-size: 1rem;
+      font-size: 0.8rem;
       font-weight: 600;
       color: #fff;
       line-height: 1.4;
@@ -103,7 +107,7 @@
       text-overflow: ellipsis;
     }
     .song-artist {
-      font-size: 0.82rem;
+      font-size: 0.68rem;
       color: rgba(255,255,255,0.5);
       margin-top: 2px;
       white-space: nowrap;
@@ -114,11 +118,11 @@
     /* ===== 进度条 ===== */
     .progress-bar {
       width: 100%;
-      height: 3px;
+      height: 2px;
       border-radius: 2px;
       background: rgba(255,255,255,0.1);
       cursor: pointer;
-      margin-bottom: 18px;
+      margin-bottom: 8px;
       position: relative;
     }
     .progress-fill {
@@ -131,8 +135,8 @@
     }
     .progress-fill::after {
       content: '';
-      position: absolute; right: -4px; top: -3px;
-      width: 9px; height: 9px;
+      position: absolute; right: -3px; top: -2.5px;
+      width: 7px; height: 7px;
       border-radius: 50%;
       background: #fff;
       opacity: 0;
@@ -141,18 +145,31 @@
     .progress-bar:hover .progress-fill::after {
       opacity: 1;
     }
+
     .time-row {
       display: flex; justify-content: space-between;
       font-size: 0.7rem; color: rgba(255,255,255,0.3);
       margin-top: 6px;
     }
 
-    /* ===== 按钮行 ===== */
-    .btn-row {
+    /* ===== 底部播放按钮 ===== */
+    .play-row {
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 24px;
+      padding-top: 10px;
+      position: relative;
+    }
+
+    /* 音量固定在底部右侧 */
+    .play-row .vol-wrap {
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      align-items: center;
+      gap: 4px;
     }
     .btn {
       background: none; border: none; color: rgba(255,255,255,0.55);
@@ -167,13 +184,6 @@
       margin-right: -6px;
     }
 
-    .vol-wrap {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      position: relative;
-      margin-left: auto;
-    }
     .vol-slider-wrap {
       position: absolute;
       bottom: 100%;
@@ -193,7 +203,7 @@
     }
     .vol-slider {
       -webkit-appearance: none; appearance: none;
-      width: 4px; height: 80px;
+      width: 3px; height: 50px;
       border-radius: 2px;
       background: rgba(255,255,255,0.15);
       outline: none; cursor: pointer;
@@ -202,14 +212,14 @@
     }
     .vol-slider::-webkit-slider-thumb {
       -webkit-appearance: none;
-      width: 12px; height: 12px;
+      width: 10px; height: 10px;
       border-radius: 50%;
       background: #fff;
       cursor: pointer;
     }
 
     .btn-play {
-      width: 52px; height: 52px;
+      width: 36px; height: 36px;
       border-radius: 50%;
       background: rgba(255,255,255,0.12);
       color: #fff;
@@ -219,7 +229,7 @@
       color: #fff;
     }
     .btn-play svg {
-      width: 24px; height: 24px;
+      width: 16px; height: 16px;
       margin-left: 2px;
     }
     .btn-play.playing svg {
@@ -228,8 +238,8 @@
 
     /* ===== 响应式 ===== */
     @media (max-width: 480px) {
-      .player-card { width: calc(100vw - 40px); max-width: 360px; }
-      .controls { padding: 20px 22px 24px; }
+      .player-card { width: calc(100vw - 24px); max-width: 240px; }
+      .controls { padding: 10px 14px 14px; }
     }
   </style>
 </head>
@@ -263,7 +273,8 @@
         <span id="time-total">0:00</span>
       </div>
 
-      <div class="btn-row">
+      <!-- 播放按钮居中 + 音量在右侧 -->
+      <div class="play-row">
         <button class="btn btn-play" id="btn-play" title="播放">
           <svg viewBox="0 0 24 24" fill="currentColor">
             <polygon points="8 5 19 12 8 19 8 5"/>
@@ -274,7 +285,7 @@
             <input type="range" id="vol-slider" class="vol-slider" min="0" max="1" step="0.05" value="0.5" />
           </div>
           <button class="btn btn-vol" id="btn-vol" title="音量">
-            <svg id="vol-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px;">
+            <svg id="vol-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;">
               <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
               <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
               <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
@@ -420,6 +431,128 @@
 
       // 默认加载第一首
       loadTrack(0);
+    })();
+  </script>
+
+  <!-- 拖拽 + 边界淡入淡出（卡片自身透明度） -->
+  <script is:inline>
+    (function() {
+      var card = document.querySelector('.player-card');
+      if (!card) return;
+
+      var isDragging = false;
+      var startX = 0, startY = 0;
+      var rawX = 0, rawY = 0;     // 累计原始偏移（无界）
+      var moved = false;
+
+      // 将原始偏移转为视口内的视觉位置（模运算实现边界循环）
+      function visualPos(rx, ry) {
+        var sw = window.innerWidth, sh = window.innerHeight;
+        var hw = sw / 2, hh = sh / 2;
+        return {
+          x: ((rx + hw) % sw + sw) % sw - hw,
+          y: ((ry + hh) % sh + sh) % sh - hh,
+        };
+      }
+
+      // 根据视觉位置计算卡片透明度（靠近边缘渐隐）
+      function calcOpacity(vx, vy) {
+        var sw = window.innerWidth, sh = window.innerHeight;
+        var hw = sw / 2, hh = sh / 2;
+        var nx = Math.abs(vx) / hw;   // 0=中心  1=视口边缘
+        var ny = Math.abs(vy) / hh;
+        var dist = Math.max(nx, ny);
+        var fadeStart = 0.55;          // 55% 位置开始渐隐
+        if (dist <= fadeStart) return '1';
+        return Math.max(0, 1 - (dist - fadeStart) / (1 - fadeStart)) + '';
+      }
+
+      // ---- 鼠标 ----
+      document.addEventListener('mousedown', function(e) {
+        if (e.target.closest('.player-card') || e.target.closest('.close-btn') || e.target.closest('.controls')) return;
+        isDragging = true;
+        moved = false;
+        startX = e.clientX;
+        startY = e.clientY;
+        card.style.transition = 'none';
+      });
+
+      document.addEventListener('mousemove', function(e) {
+        if (!isDragging) return;
+        var rx = e.clientX - startX + rawX;
+        var ry = e.clientY - startY + rawY;
+        if (Math.abs(rx - rawX) > 3 || Math.abs(ry - rawY) > 3) moved = true;
+        var vp = visualPos(rx, ry);
+        card.style.transform = 'translateX(' + vp.x + 'px) translateY(' + vp.y + 'px)';
+        card.style.opacity = calcOpacity(vp.x, vp.y);
+      });
+
+      document.addEventListener('mouseup', function() {
+        if (!isDragging) return;
+        isDragging = false;
+        if (!moved) {
+          card.style.transform = '';
+          card.style.opacity = '';
+          card.style.transition = '';
+          return;
+        }
+        // 保存原始偏移供下次拖拽连续
+        var t = card.style.transform;
+        var m = t.match(/translateX\(([-\d.]+)px\)\s*translateY\(([-\d.]+)px\)/);
+        if (m) {
+          var vx = parseFloat(m[1]) || 0;
+          var vy = parseFloat(m[2]) || 0;
+          var sw = window.innerWidth, sh = window.innerHeight;
+          var kx = Math.round((rawX - vx) / sw);
+          var ky = Math.round((rawY - vy) / sh);
+          rawX = vx + kx * sw;
+          rawY = vy + ky * sh;
+        }
+        card.style.transition = '';
+      });
+
+      // ---- 触摸 ----
+      document.addEventListener('touchstart', function(e) {
+        if (e.target.closest('.player-card') || e.target.closest('.close-btn') || e.target.closest('.controls')) return;
+        isDragging = true;
+        moved = false;
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+        card.style.transition = 'none';
+      });
+
+      document.addEventListener('touchmove', function(e) {
+        if (!isDragging) return;
+        var rx = e.touches[0].clientX - startX + rawX;
+        var ry = e.touches[0].clientY - startY + rawY;
+        if (Math.abs(rx - rawX) > 3 || Math.abs(ry - rawY) > 3) moved = true;
+        var vp = visualPos(rx, ry);
+        card.style.transform = 'translateX(' + vp.x + 'px) translateY(' + vp.y + 'px)';
+        card.style.opacity = calcOpacity(vp.x, vp.y);
+      }, { passive: true });
+
+      document.addEventListener('touchend', function() {
+        if (!isDragging) return;
+        isDragging = false;
+        if (!moved) {
+          card.style.transform = '';
+          card.style.opacity = '';
+          card.style.transition = '';
+          return;
+        }
+        var t = card.style.transform;
+        var m = t.match(/translateX\(([-\d.]+)px\)\s*translateY\(([-\d.]+)px\)/);
+        if (m) {
+          var vx = parseFloat(m[1]) || 0;
+          var vy = parseFloat(m[2]) || 0;
+          var sw = window.innerWidth, sh = window.innerHeight;
+          var kx = Math.round((rawX - vx) / sw);
+          var ky = Math.round((rawY - vy) / sh);
+          rawX = vx + kx * sw;
+          rawY = vy + ky * sh;
+        }
+        card.style.transition = '';
+      });
     })();
   </script>
 </body>
