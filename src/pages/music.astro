@@ -467,6 +467,27 @@
         return Math.max(0, 1 - (dist - fadeStart) / (1 - fadeStart)) + '';
       }
 
+      // 根据距离中心远近计算缩放（焦点处最大，四周缩小）
+      function calcScale(vx, vy) {
+        var sw = window.innerWidth, sh = window.innerHeight;
+        var hw = sw / 2, hh = sh / 2;
+        var nx = Math.abs(vx) / hw;
+        var ny = Math.abs(vy) / hh;
+        var dist = Math.max(nx, ny);
+        var scaleStart = 0.3;           // 30% 以内保持最大
+        if (dist <= scaleStart) return '1.15';
+        var s = 1.15 - (dist - scaleStart) / (1 - scaleStart) * 0.4;
+        return Math.max(0.75, s) + '';
+      }
+
+      // 统一更新卡片位置 + 透明度 + 缩放
+      function updateCard(vp) {
+        var opacity = calcOpacity(vp.x, vp.y);
+        var scale = calcScale(vp.x, vp.y);
+        card.style.transform = 'translateX(' + vp.x + 'px) translateY(' + vp.y + 'px) scale(' + scale + ')';
+        card.style.opacity = opacity;
+      }
+
       // ---- 鼠标 ----
       document.addEventListener('mousedown', function(e) {
         if (e.target.closest('.player-card') || e.target.closest('.close-btn') || e.target.closest('.controls')) return;
@@ -483,8 +504,7 @@
         var ry = e.clientY - startY + rawY;
         if (Math.abs(rx - rawX) > 3 || Math.abs(ry - rawY) > 3) moved = true;
         var vp = visualPos(rx, ry);
-        card.style.transform = 'translateX(' + vp.x + 'px) translateY(' + vp.y + 'px)';
-        card.style.opacity = calcOpacity(vp.x, vp.y);
+        updateCard(vp);
       });
 
       document.addEventListener('mouseup', function() {
@@ -527,8 +547,7 @@
         var ry = e.touches[0].clientY - startY + rawY;
         if (Math.abs(rx - rawX) > 3 || Math.abs(ry - rawY) > 3) moved = true;
         var vp = visualPos(rx, ry);
-        card.style.transform = 'translateX(' + vp.x + 'px) translateY(' + vp.y + 'px)';
-        card.style.opacity = calcOpacity(vp.x, vp.y);
+        updateCard(vp);
       }, { passive: true });
 
       document.addEventListener('touchend', function() {
