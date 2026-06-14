@@ -20,6 +20,10 @@
       cursor: grab;
       user-select: none;
       -webkit-user-select: none;
+      perspective: 1200px;
+      -webkit-perspective: 1200px;
+      perspective-origin: center center;
+      -webkit-perspective-origin: center center;
     }
     body:active { cursor: grabbing; }
 
@@ -54,11 +58,14 @@
 
     /* ===== 卡片包裹容器（整体拖拽目标） ===== */
     .cards-wrapper {
-      display: flex;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
       gap: 100px;
       align-items: center;
-      justify-content: center;
+      justify-items: center;
       z-index: 1;
+      transform-style: preserve-3d;
+      -webkit-transform-style: preserve-3d;
     }
 
     /* ===== 播放器卡片 ===== */
@@ -557,8 +564,19 @@
         audio.play().catch(function(){});
         isPlaying = true;
 
+        // 重置所有进度条
+        resetAllProgress();
         // 更新所有卡片状态
         updateAllCardStates();
+      }
+
+      function resetAllProgress() {
+        for (var k in cardData) {
+          var d = cardData[k];
+          d.progressFill.style.width = '0%';
+          d.timeCurrent.textContent = '0:00';
+          d.timeTotal.textContent = '0:00';
+        }
       }
 
       function updateAllCardStates() {
@@ -593,6 +611,7 @@
         audio.src = playlist[currentIdx].src;
         audio.play().catch(function(){});
         isPlaying = true;
+        resetAllProgress();
         updateAllCardStates();
       });
 
@@ -662,7 +681,7 @@
         var nx = Math.abs(vx) / hw;
         var ny = Math.abs(vy) / hh;
         var dist = Math.max(nx, ny);
-        var fadeStart = 0.55;
+        var fadeStart = 0.25;
         if (dist <= fadeStart) return '1';
         return Math.max(0, 1 - (dist - fadeStart) / (1 - fadeStart)) + '';
       }
@@ -673,17 +692,37 @@
         var nx = Math.abs(vx) / hw;
         var ny = Math.abs(vy) / hh;
         var dist = Math.max(nx, ny);
-        var scaleStart = 0.3;
+        var scaleStart = 0.2;
         if (dist <= scaleStart) return '1.15';
-        var s = 1.15 - (dist - scaleStart) / (1 - scaleStart) * 0.4;
-        return Math.max(0.75, s) + '';
+        var s = 1.15 - (dist - scaleStart) / (1 - scaleStart) * 0.7;
+        return Math.max(0.4, s) + '';
       }
 
+      var allCards = document.querySelectorAll('.player-card');
+
       function updateWrapper(vp) {
-        var opacity = calcOpacity(vp.x, vp.y);
-        var scale = calcScale(vp.x, vp.y);
-        wrapper.style.transform = 'translateX(' + vp.x + 'px) translateY(' + vp.y + 'px) scale(' + scale + ')';
-        wrapper.style.opacity = opacity;
+        var sw = window.innerWidth, sh = window.innerHeight;
+        // 球体内部：旋转方向反向，离中心越远越"靠近"观察者
+        var ry = -(vp.x / sw) * 60;
+        var rx = (vp.y / sh) * 40;
+        var tz = (Math.abs(vp.x / sw) + Math.abs(vp.y / sh)) * 200;
+        wrapper.style.transform =
+          'translateX(' + vp.x + 'px) translateY(' + vp.y + 'px) translateZ(' + tz + 'px)' +
+          ' rotateY(' + ry + 'deg) rotateX(' + rx + 'deg)';
+
+        // 每张卡片独立计算缩放/透明度
+        for (var i = 0; i < allCards.length; i++) {
+          var card = allCards[i];
+          var rect = card.getBoundingClientRect();
+          var cx = rect.left + rect.width / 2;
+          var cy = rect.top + rect.height / 2;
+          var cvx = cx - sw / 2;   // 卡片中心相对于视口中心的偏移
+          var cvy = cy - sh / 2;
+          var cs = calcScale(cvx, cvy);
+          var co = calcOpacity(cvx, cvy);
+          card.style.opacity = co;
+          card.style.transform = 'scale(' + cs + ')';
+        }
       }
 
       // ---- 鼠标 ----
@@ -709,8 +748,11 @@
         isDragging = false;
         if (!moved) {
           wrapper.style.transform = '';
-          wrapper.style.opacity = '';
           wrapper.style.transition = '';
+          for (var i = 0; i < allCards.length; i++) {
+            allCards[i].style.transform = '';
+            allCards[i].style.opacity = '';
+          }
           return;
         }
         var t = wrapper.style.transform;
@@ -750,8 +792,11 @@
         isDragging = false;
         if (!moved) {
           wrapper.style.transform = '';
-          wrapper.style.opacity = '';
           wrapper.style.transition = '';
+          for (var i = 0; i < allCards.length; i++) {
+            allCards[i].style.transform = '';
+            allCards[i].style.opacity = '';
+          }
           return;
         }
         var t = wrapper.style.transform;
