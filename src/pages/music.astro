@@ -59,8 +59,8 @@
     /* ===== 卡片包裹容器（整体拖拽目标） ===== */
     .cards-wrapper {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 100px;
+      grid-template-columns: 260px 260px;
+      gap: 80px 120px;
       align-items: center;
       justify-items: center;
       z-index: 1;
@@ -241,7 +241,7 @@
     }
 
     .btn-play {
-      width: 36px; height: 36px;
+      width: 42px; height: 42px;
       border-radius: 50%;
       background: rgba(255,255,255,0.12);
       color: #fff;
@@ -251,7 +251,7 @@
       color: #fff;
     }
     .btn-play svg {
-      width: 16px; height: 16px;
+      width: 18px; height: 18px;
       margin-left: 2px;
     }
     .btn-play.playing svg {
@@ -261,9 +261,10 @@
     /* ===== 响应式 ===== */
     @media (max-width: 480px) {
       .cards-wrapper {
-        gap: 12px;
+        grid-template-columns: 160px 160px;
+        gap: 40px 30px;
       }
-      .player-card { width: calc(25vw - 12px); max-width: 180px; }
+      .player-card { width: 160px; }
       .controls { padding: 10px 14px 14px; }
     }
   </style>
@@ -650,8 +651,10 @@
       loadSongToCard(1, 1);
       loadSongToCard(2, 2);
       loadSongToCard(3, 3);
-      // 默认播放卡片0
-      playOnCard(0);
+      // 默认选中卡片0但不自动播放
+      currentIdx = 0;
+      audio.src = playlist[0].src;
+      cardData[0].el.classList.add('active');
     })();
   </script>
 
