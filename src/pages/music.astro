@@ -1,5 +1,4 @@
 ---
-
 ---
 
 <!doctype html>
@@ -53,9 +52,18 @@
     }
     .close-btn:hover { background: rgba(0,0,0,0.5); color: #fff; }
 
+    /* ===== 卡片包裹容器（整体拖拽目标） ===== */
+    .cards-wrapper {
+      display: flex;
+      gap: 100px;
+      align-items: center;
+      justify-content: center;
+      z-index: 1;
+    }
+
     /* ===== 播放器卡片 ===== */
     .player-card {
-      position: relative; z-index: 1;
+      position: relative;
       width: 220px;
       border-radius: 14px;
       background: rgba(20,20,25,0.35);
@@ -64,7 +72,14 @@
       border: 1px solid rgba(255,255,255,0.08);
       box-shadow: 0 24px 80px rgba(0,0,0,0.6);
       overflow: hidden;
-      transition: all 0.3s;
+      transition: border-color 0.3s;
+      flex-shrink: 0;
+    }
+
+    /* 正在播放的卡片高亮 */
+    .player-card.active {
+      border-color: rgba(255,255,255,0.5);
+      box-shadow: 0 24px 80px rgba(0,0,0,0.6), 0 0 30px rgba(255,255,255,0.08);
     }
 
     /* ===== 封面区 ===== */
@@ -238,7 +253,10 @@
 
     /* ===== 响应式 ===== */
     @media (max-width: 480px) {
-      .player-card { width: calc(100vw - 24px); max-width: 240px; }
+      .cards-wrapper {
+        gap: 12px;
+      }
+      .player-card { width: calc(25vw - 12px); max-width: 180px; }
       .controls { padding: 10px 14px 14px; }
     }
   </style>
@@ -251,49 +269,169 @@
 
   <a href="/" class="close-btn" title="返回首页">×</a>
 
-  <div class="player-card">
-    <!-- 封面 -->
-    <div class="cover-area" id="cover-area">
-      <div class="cover-placeholder" id="cover-placeholder" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#2a1a3a,#1a0d28);color:rgba(255,255,255,0.08);font-size:4rem;">♪</div>
-      <img id="cover-img" src="" alt="" style="display:none;" />
-    </div>
+  <!-- ===== 两张卡片 ===== -->
+  <div class="cards-wrapper" id="cards-wrapper">
 
-    <!-- 控制区 -->
-    <div class="controls">
-      <div class="song-info">
-        <div class="song-title" id="song-title">未选择歌曲</div>
-        <div class="song-artist" id="song-artist">点击播放</div>
+    <!-- 卡片 1 -->
+    <div class="player-card" data-card="0">
+      <div class="cover-area">
+        <div class="cover-placeholder" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#2a1a3a,#1a0d28);color:rgba(255,255,255,0.08);font-size:4rem;">♪</div>
+        <img class="cover-img" src="" alt="" style="display:none;" />
       </div>
-
-      <div class="progress-bar" id="progress-bar">
-        <div class="progress-fill" id="progress-fill"></div>
-      </div>
-      <div class="time-row">
-        <span id="time-current">0:00</span>
-        <span id="time-total">0:00</span>
-      </div>
-
-      <!-- 播放按钮居中 + 音量在右侧 -->
-      <div class="play-row">
-        <button class="btn btn-play" id="btn-play" title="播放">
-          <svg viewBox="0 0 24 24" fill="currentColor">
-            <polygon points="8 5 19 12 8 19 8 5"/>
-          </svg>
-        </button>
-        <div class="vol-wrap" id="vol-wrap">
-          <div class="vol-slider-wrap" id="vol-slider-wrap">
-            <input type="range" id="vol-slider" class="vol-slider" min="0" max="1" step="0.05" value="0.5" />
-          </div>
-          <button class="btn btn-vol" id="btn-vol" title="音量">
-            <svg id="vol-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;">
-              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
-              <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
-              <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+      <div class="controls">
+        <div class="song-info">
+          <div class="song-title">未选择歌曲</div>
+          <div class="song-artist">点击播放</div>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill"></div>
+        </div>
+        <div class="time-row">
+          <span class="time-current">0:00</span>
+          <span class="time-total">0:00</span>
+        </div>
+        <div class="play-row">
+          <button class="btn btn-play" title="播放">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <polygon points="8 5 19 12 8 19 8 5"/>
             </svg>
           </button>
+          <div class="vol-wrap">
+            <div class="vol-slider-wrap">
+              <input type="range" class="vol-slider" min="0" max="1" step="0.05" value="0.5" />
+            </div>
+            <button class="btn btn-vol" title="音量">
+              <svg class="vol-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+                <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+                <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
     </div>
+
+    <!-- 卡片 2（结构完全相同） -->
+    <div class="player-card" data-card="1">
+      <div class="cover-area">
+        <div class="cover-placeholder" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#1a2a3a,#0d1828);color:rgba(255,255,255,0.08);font-size:4rem;">♪</div>
+        <img class="cover-img" src="" alt="" style="display:none;" />
+      </div>
+      <div class="controls">
+        <div class="song-info">
+          <div class="song-title">未选择歌曲</div>
+          <div class="song-artist">点击播放</div>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill"></div>
+        </div>
+        <div class="time-row">
+          <span class="time-current">0:00</span>
+          <span class="time-total">0:00</span>
+        </div>
+        <div class="play-row">
+          <button class="btn btn-play" title="播放">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <polygon points="8 5 19 12 8 19 8 5"/>
+            </svg>
+          </button>
+          <div class="vol-wrap">
+            <div class="vol-slider-wrap">
+              <input type="range" class="vol-slider" min="0" max="1" step="0.05" value="0.5" />
+            </div>
+            <button class="btn btn-vol" title="音量">
+              <svg class="vol-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+                <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+                <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 卡片 3 -->
+    <div class="player-card" data-card="2">
+      <div class="cover-area">
+        <div class="cover-placeholder" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#1a3a3a,#0d1828);color:rgba(255,255,255,0.08);font-size:4rem;">♪</div>
+        <img class="cover-img" src="" alt="" style="display:none;" />
+      </div>
+      <div class="controls">
+        <div class="song-info">
+          <div class="song-title">未选择歌曲</div>
+          <div class="song-artist">点击播放</div>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill"></div>
+        </div>
+        <div class="time-row">
+          <span class="time-current">0:00</span>
+          <span class="time-total">0:00</span>
+        </div>
+        <div class="play-row">
+          <button class="btn btn-play" title="播放">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <polygon points="8 5 19 12 8 19 8 5"/>
+            </svg>
+          </button>
+          <div class="vol-wrap">
+            <div class="vol-slider-wrap">
+              <input type="range" class="vol-slider" min="0" max="1" step="0.05" value="0.5" />
+            </div>
+            <button class="btn btn-vol" title="音量">
+              <svg class="vol-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+                <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+                <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 卡片 4 -->
+    <div class="player-card" data-card="3">
+      <div class="cover-area">
+        <div class="cover-placeholder" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#3a2a1a,#28180d);color:rgba(255,255,255,0.08);font-size:4rem;">♪</div>
+        <img class="cover-img" src="" alt="" style="display:none;" />
+      </div>
+      <div class="controls">
+        <div class="song-info">
+          <div class="song-title">未选择歌曲</div>
+          <div class="song-artist">点击播放</div>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill"></div>
+        </div>
+        <div class="time-row">
+          <span class="time-current">0:00</span>
+          <span class="time-total">0:00</span>
+        </div>
+        <div class="play-row">
+          <button class="btn btn-play" title="播放">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <polygon points="8 5 19 12 8 19 8 5"/>
+            </svg>
+          </button>
+          <div class="vol-wrap">
+            <div class="vol-slider-wrap">
+              <input type="range" class="vol-slider" min="0" max="1" step="0.05" value="0.5" />
+            </div>
+            <button class="btn btn-vol" title="音量">
+              <svg class="vol-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+                <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+                <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <script is:inline>
@@ -309,118 +447,177 @@
       var currentIdx = -1;
       var isPlaying = false;
 
-      var coverImg = document.getElementById('cover-img');
-      var coverPlaceholder = document.getElementById('cover-placeholder');
-      var songTitle = document.getElementById('song-title');
-      var songArtist = document.getElementById('song-artist');
-      var btnPlay = document.getElementById('btn-play');
-      var progressFill = document.getElementById('progress-fill');
-      var timeCurrent = document.getElementById('time-current');
-      var timeTotal = document.getElementById('time-total');
+      // 获取所有卡片的 DOM
+      var cards = document.querySelectorAll('.player-card');
 
-      function loadTrack(i) {
-        currentIdx = i;
-        var song = playlist[i];
-        audio.src = song.src;
+      // 每张卡片关联的 DOM 引用
+      var cardData = {};
 
-        // 封面
-        if (song.cover) {
-          coverImg.src = song.cover;
-          coverImg.style.display = 'block';
-          coverPlaceholder.style.display = 'none';
-        } else {
-          coverImg.style.display = 'none';
-          coverPlaceholder.style.display = 'flex';
+      cards.forEach(function(card) {
+        var idx = parseInt(card.dataset.card);
+        var data = {
+          el: card,
+          coverImg: card.querySelector('.cover-img'),
+          coverPlaceholder: card.querySelector('.cover-placeholder'),
+          songTitle: card.querySelector('.song-title'),
+          songArtist: card.querySelector('.song-artist'),
+          btnPlay: card.querySelector('.btn-play'),
+          progressFill: card.querySelector('.progress-fill'),
+          timeCurrent: card.querySelector('.time-current'),
+          timeTotal: card.querySelector('.time-total'),
+          progressBar: card.querySelector('.progress-bar'),
+          volSlider: card.querySelector('.vol-slider'),
+          volWrap: card.querySelector('.vol-slider-wrap'),
+          volIcon: card.querySelector('.vol-icon'),
+          volBtn: card.querySelector('.btn-vol'),
+          volArea: card.querySelector('.vol-wrap'),
+        };
+        data.songIdx = idx; // 每个卡片默认播放不同的歌
+        cardData[idx] = data;
+
+        // 加载对应歌曲信息（不开始播放）
+        loadSongToCard(idx, data.songIdx);
+
+        // 点击播放按钮
+        data.btnPlay.addEventListener('click', function(e) {
+          e.stopPropagation();
+          playOnCard(idx);
+        });
+
+        // 进度条点击
+        data.progressBar.addEventListener('click', function(e) {
+          e.stopPropagation();
+          if (currentIdx !== data.songIdx) return;
+          if (!audio.duration) return;
+          var rect = this.getBoundingClientRect();
+          var pct = (e.clientX - rect.left) / rect.width;
+          audio.currentTime = pct * audio.duration;
+        });
+
+        // 音量滑块
+        var sliderOpen = false;
+        data.volBtn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          sliderOpen = !sliderOpen;
+          data.volWrap.classList.toggle('open', sliderOpen);
+        });
+        data.volArea.addEventListener('click', function(e) { e.stopPropagation(); });
+
+        data.volSlider.addEventListener('input', function() {
+          audio.volume = parseFloat(this.value);
+          updateVolIcon(data);
+        });
+      });
+
+      // 点击全局收起音量
+      document.addEventListener('click', function() {
+        for (var k in cardData) {
+          cardData[k].volWrap.classList.remove('open');
         }
+      });
 
-        songTitle.textContent = song.title;
-        songArtist.textContent = song.artist;
+      function loadSongToCard(cardIdx, songIdx) {
+        var data = cardData[cardIdx];
+        var song = playlist[songIdx];
+        data.songTitle.textContent = song.title;
+        data.songArtist.textContent = song.artist;
+        if (song.cover) {
+          data.coverImg.src = song.cover;
+          data.coverImg.style.display = 'block';
+          data.coverPlaceholder.style.display = 'none';
+        } else {
+          data.coverImg.style.display = 'none';
+          data.coverPlaceholder.style.display = 'flex';
+        }
       }
 
-      function play() {
+      function playOnCard(cardIdx) {
+        var data = cardData[cardIdx];
+        var songIdx = data.songIdx;
+
+        if (currentIdx === songIdx) {
+          // 正在播这首歌 → 切换暂停/播放
+          if (isPlaying) {
+            audio.pause();
+            isPlaying = false;
+            data.btnPlay.classList.remove('playing');
+            data.btnPlay.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><polygon points="8 5 19 12 8 19 8 5"/></svg>';
+          } else {
+            audio.play().catch(function(){});
+            isPlaying = true;
+            data.btnPlay.classList.add('playing');
+            data.btnPlay.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>';
+          }
+          return;
+        }
+
+        // 切换歌曲
+        currentIdx = songIdx;
+        audio.src = playlist[songIdx].src;
         audio.play().catch(function(){});
         isPlaying = true;
-        btnPlay.classList.add('playing');
-        btnPlay.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>';
+
+        // 更新所有卡片状态
+        updateAllCardStates();
       }
 
-      function pause() {
-        audio.pause();
-        isPlaying = false;
-        btnPlay.classList.remove('playing');
-        btnPlay.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><polygon points="8 5 19 12 8 19 8 5"/></svg>';
-      }
-
-      function togglePlay() {
-        if (currentIdx < 0) { loadTrack(0); play(); return; }
-        if (isPlaying) { pause(); } else { play(); }
-      }
-
-      // 音量控制
-      var volSlider = document.getElementById('vol-slider');
-      var volWrap = document.getElementById('vol-slider-wrap');
-      var volIcon = document.getElementById('vol-icon');
-      var volBtn = document.getElementById('btn-vol');
-      var sliderOpen = false;
-      audio.volume = 0.5;
-
-      volBtn.addEventListener('click', function(e) {
-        e.stopPropagation();
-        sliderOpen = !sliderOpen;
-        volWrap.classList.toggle('open', sliderOpen);
-      });
-
-      // 点击其他地方收起滑块
-      document.addEventListener('click', function() {
-        if (sliderOpen) {
-          sliderOpen = false;
-          volWrap.classList.remove('open');
+      function updateAllCardStates() {
+        for (var k in cardData) {
+          var data = cardData[k];
+          var active = (data.songIdx === currentIdx);
+          data.el.classList.toggle('active', active);
+          if (active && isPlaying) {
+            data.btnPlay.classList.add('playing');
+            data.btnPlay.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>';
+          } else {
+            data.btnPlay.classList.remove('playing');
+            data.btnPlay.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><polygon points="8 5 19 12 8 19 8 5"/></svg>';
+          }
         }
-      });
-      document.getElementById('vol-wrap').addEventListener('click', function(e) {
-        e.stopPropagation();
-      });
+      }
 
-      volSlider.addEventListener('input', function() {
-        audio.volume = parseFloat(this.value);
-        // 更新音量图标 —— 低音量时显示单波纹
+      function updateVolIcon(data) {
         var v = audio.volume;
-        volIcon.innerHTML = v === 0
+        data.volIcon.innerHTML = v === 0
           ? '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>'
           : v < 0.3
             ? '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>'
             : '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>';
-      });
+      }
 
-      // 点击播放
-      document.getElementById('btn-play').addEventListener('click', togglePlay);
+      audio.volume = 0.5;
 
       // 自动下一曲
       audio.addEventListener('ended', function() {
-        var i = (currentIdx + 1) % playlist.length;
-        loadTrack(i);
-        play();
+        currentIdx = (currentIdx + 1) % playlist.length;
+        audio.src = playlist[currentIdx].src;
+        audio.play().catch(function(){});
+        isPlaying = true;
+        updateAllCardStates();
       });
 
       // 进度更新
       audio.addEventListener('timeupdate', function() {
-        if (audio.duration) {
-          var pct = (audio.currentTime / audio.duration) * 100;
-          progressFill.style.width = pct + '%';
-          timeCurrent.textContent = formatTime(audio.currentTime);
+        if (!audio.duration) return;
+        var pct = (audio.currentTime / audio.duration) * 100;
+        var t = formatTime(audio.currentTime);
+        for (var k in cardData) {
+          var d = cardData[k];
+          if (d.songIdx === currentIdx) {
+            d.progressFill.style.width = pct + '%';
+            d.timeCurrent.textContent = t;
+          }
         }
       });
 
       audio.addEventListener('loadedmetadata', function() {
-        timeTotal.textContent = formatTime(audio.duration);
-      });
-
-      // 点击进度条跳转
-      document.getElementById('progress-bar').addEventListener('click', function(e) {
-        if (!audio.duration) return;
-        var rect = this.getBoundingClientRect();
-        var pct = (e.clientX - rect.left) / rect.width;
-        audio.currentTime = pct * audio.duration;
+        var total = formatTime(audio.duration);
+        for (var k in cardData) {
+          var d = cardData[k];
+          if (d.songIdx === currentIdx) {
+            d.timeTotal.textContent = total;
+          }
+        }
       });
 
       function formatTime(t) {
@@ -429,23 +626,27 @@
         return m + ':' + (s < 10 ? '0' : '') + s;
       }
 
-      // 默认加载第一首
-      loadTrack(0);
+      // 默认加载（卡片0→第1首，卡片1→第2首，卡片2→第3首，卡片3→第4首）
+      loadSongToCard(0, 0);
+      loadSongToCard(1, 1);
+      loadSongToCard(2, 2);
+      loadSongToCard(3, 3);
+      // 默认播放卡片0
+      playOnCard(0);
     })();
   </script>
 
-  <!-- 拖拽 + 边界淡入淡出（卡片自身透明度） -->
+  <!-- 拖拽 + 边界淡入淡出 + 焦点缩放 -->
   <script is:inline>
     (function() {
-      var card = document.querySelector('.player-card');
-      if (!card) return;
+      var wrapper = document.getElementById('cards-wrapper');
+      if (!wrapper) return;
 
       var isDragging = false;
       var startX = 0, startY = 0;
-      var rawX = 0, rawY = 0;     // 累计原始偏移（无界）
+      var rawX = 0, rawY = 0;
       var moved = false;
 
-      // 将原始偏移转为视口内的视觉位置（模运算实现边界循环）
       function visualPos(rx, ry) {
         var sw = window.innerWidth, sh = window.innerHeight;
         var hw = sw / 2, hh = sh / 2;
@@ -455,47 +656,44 @@
         };
       }
 
-      // 根据视觉位置计算卡片透明度（靠近边缘渐隐）
       function calcOpacity(vx, vy) {
         var sw = window.innerWidth, sh = window.innerHeight;
         var hw = sw / 2, hh = sh / 2;
-        var nx = Math.abs(vx) / hw;   // 0=中心  1=视口边缘
+        var nx = Math.abs(vx) / hw;
         var ny = Math.abs(vy) / hh;
         var dist = Math.max(nx, ny);
-        var fadeStart = 0.55;          // 55% 位置开始渐隐
+        var fadeStart = 0.55;
         if (dist <= fadeStart) return '1';
         return Math.max(0, 1 - (dist - fadeStart) / (1 - fadeStart)) + '';
       }
 
-      // 根据距离中心远近计算缩放（焦点处最大，四周缩小）
       function calcScale(vx, vy) {
         var sw = window.innerWidth, sh = window.innerHeight;
         var hw = sw / 2, hh = sh / 2;
         var nx = Math.abs(vx) / hw;
         var ny = Math.abs(vy) / hh;
         var dist = Math.max(nx, ny);
-        var scaleStart = 0.3;           // 30% 以内保持最大
+        var scaleStart = 0.3;
         if (dist <= scaleStart) return '1.15';
         var s = 1.15 - (dist - scaleStart) / (1 - scaleStart) * 0.4;
         return Math.max(0.75, s) + '';
       }
 
-      // 统一更新卡片位置 + 透明度 + 缩放
-      function updateCard(vp) {
+      function updateWrapper(vp) {
         var opacity = calcOpacity(vp.x, vp.y);
         var scale = calcScale(vp.x, vp.y);
-        card.style.transform = 'translateX(' + vp.x + 'px) translateY(' + vp.y + 'px) scale(' + scale + ')';
-        card.style.opacity = opacity;
+        wrapper.style.transform = 'translateX(' + vp.x + 'px) translateY(' + vp.y + 'px) scale(' + scale + ')';
+        wrapper.style.opacity = opacity;
       }
 
       // ---- 鼠标 ----
       document.addEventListener('mousedown', function(e) {
-        if (e.target.closest('.player-card') || e.target.closest('.close-btn') || e.target.closest('.controls')) return;
+        if (e.target.closest('.player-card') || e.target.closest('.close-btn')) return;
         isDragging = true;
         moved = false;
         startX = e.clientX;
         startY = e.clientY;
-        card.style.transition = 'none';
+        wrapper.style.transition = 'none';
       });
 
       document.addEventListener('mousemove', function(e) {
@@ -503,21 +701,19 @@
         var rx = e.clientX - startX + rawX;
         var ry = e.clientY - startY + rawY;
         if (Math.abs(rx - rawX) > 3 || Math.abs(ry - rawY) > 3) moved = true;
-        var vp = visualPos(rx, ry);
-        updateCard(vp);
+        updateWrapper(visualPos(rx, ry));
       });
 
       document.addEventListener('mouseup', function() {
         if (!isDragging) return;
         isDragging = false;
         if (!moved) {
-          card.style.transform = '';
-          card.style.opacity = '';
-          card.style.transition = '';
+          wrapper.style.transform = '';
+          wrapper.style.opacity = '';
+          wrapper.style.transition = '';
           return;
         }
-        // 保存原始偏移供下次拖拽连续
-        var t = card.style.transform;
+        var t = wrapper.style.transform;
         var m = t.match(/translateX\(([-\d.]+)px\)\s*translateY\(([-\d.]+)px\)/);
         if (m) {
           var vx = parseFloat(m[1]) || 0;
@@ -528,17 +724,17 @@
           rawX = vx + kx * sw;
           rawY = vy + ky * sh;
         }
-        card.style.transition = '';
+        wrapper.style.transition = '';
       });
 
       // ---- 触摸 ----
       document.addEventListener('touchstart', function(e) {
-        if (e.target.closest('.player-card') || e.target.closest('.close-btn') || e.target.closest('.controls')) return;
+        if (e.target.closest('.player-card') || e.target.closest('.close-btn')) return;
         isDragging = true;
         moved = false;
         startX = e.touches[0].clientX;
         startY = e.touches[0].clientY;
-        card.style.transition = 'none';
+        wrapper.style.transition = 'none';
       });
 
       document.addEventListener('touchmove', function(e) {
@@ -546,20 +742,19 @@
         var rx = e.touches[0].clientX - startX + rawX;
         var ry = e.touches[0].clientY - startY + rawY;
         if (Math.abs(rx - rawX) > 3 || Math.abs(ry - rawY) > 3) moved = true;
-        var vp = visualPos(rx, ry);
-        updateCard(vp);
+        updateWrapper(visualPos(rx, ry));
       }, { passive: true });
 
       document.addEventListener('touchend', function() {
         if (!isDragging) return;
         isDragging = false;
         if (!moved) {
-          card.style.transform = '';
-          card.style.opacity = '';
-          card.style.transition = '';
+          wrapper.style.transform = '';
+          wrapper.style.opacity = '';
+          wrapper.style.transition = '';
           return;
         }
-        var t = card.style.transform;
+        var t = wrapper.style.transform;
         var m = t.match(/translateX\(([-\d.]+)px\)\s*translateY\(([-\d.]+)px\)/);
         if (m) {
           var vx = parseFloat(m[1]) || 0;
@@ -570,7 +765,7 @@
           rawX = vx + kx * sw;
           rawY = vy + ky * sh;
         }
-        card.style.transition = '';
+        wrapper.style.transition = '';
       });
     })();
   </script>
