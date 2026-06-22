@@ -427,9 +427,10 @@ const sorted = sortByDate(diaries);
       }
 
       addPendingDiary(data);
-	      toast('已发布！页面即时可见，服务器部署中...', 'success');
+	      toast('已发布！正在跳转到日记列表...', 'success');
       document.getElementById('field-body').value = '';
       document.getElementById('field-title').value = '';
+	      setTimeout(() => { window.location.href = '/diary'; }, 800);
 
     } catch(e) {
       toast('发布失败: ' + e.message, 'error');
