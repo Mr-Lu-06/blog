@@ -145,17 +145,17 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     pointer-events: none;
   }
 
-  /* 彗星整体，向右上方倾斜约 35° */
+  /* 彗星整体，自右上至左下倾斜 */
   .tiamat-comet {
     position: relative;
     width: 300px;
     height: 120px;
-    transform: rotate(-35deg);
+    transform: rotate(145deg);
     transition: transform 0.3s ease;
   }
 
   .comet-wrapper:hover .tiamat-comet {
-    transform: rotate(-35deg) scale(1.06);
+    transform: rotate(145deg) scale(1.06);
   }
 
   /* ====== 彗核 ====== */
@@ -400,11 +400,11 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     .tiamat-comet {
       width: 210px;
       height: 85px;
-      transform: rotate(-30deg);
+      transform: rotate(145deg);
     }
 
     .comet-wrapper:hover .tiamat-comet {
-      transform: rotate(-30deg) scale(1.06);
+      transform: rotate(145deg) scale(1.06);
     }
 
     .nucleus {
