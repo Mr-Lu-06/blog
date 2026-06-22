@@ -24,18 +24,38 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       preload="auto"
     ></video>
 
-    <!-- 彗星播放按钮 -->
+    <!-- 《你的名字》蒂亚马特彗星 -->
     <div class="comet-wrapper" id="glow-dot">
-      <div class="comet-orbit">
-        <div class="comet">
-          <div class="comet-head"></div>
-          <div class="comet-tail"></div>
-          <!-- 尾迹粒子 -->
-          <div class="comet-particle p1"></div>
-          <div class="comet-particle p2"></div>
-          <div class="comet-particle p3"></div>
-          <div class="comet-particle p4"></div>
-          <div class="comet-particle p5"></div>
+      <div class="tiamat-comet">
+        <!-- 彗核 + 十字光 flare -->
+        <div class="nucleus">
+          <div class="flare-line flare-h"></div>
+          <div class="flare-line flare-v"></div>
+          <div class="core-dot"></div>
+          <div class="glow-ring ring-a"></div>
+          <div class="glow-ring ring-b"></div>
+          <div class="glow-ring ring-c"></div>
+        </div>
+        <!-- 离子尾（蓝/青，细长明亮） -->
+        <div class="ion-tail">
+          <div class="ion-tail-core"></div>
+          <div class="ion-tail-glow"></div>
+        </div>
+        <!-- 尘埃尾（紫/品红，较宽弥散） -->
+        <div class="dust-tail">
+          <div class="dust-tail-core"></div>
+          <div class="dust-tail-glow"></div>
+        </div>
+        <!-- 碎片粒子 -->
+        <div class="fragments">
+          <div class="frag f1"></div>
+          <div class="frag f2"></div>
+          <div class="frag f3"></div>
+          <div class="frag f4"></div>
+          <div class="frag f5"></div>
+          <div class="frag f6"></div>
+          <div class="frag f7"></div>
+          <div class="frag f8"></div>
         </div>
       </div>
     </div>
@@ -108,7 +128,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     pointer-events: auto;
   }
 
-  /* ===== 七彩彗星播放按钮 ===== */
+  /* ===== 蒂亚马特彗星（君の名は） ===== */
   .comet-wrapper {
     position: absolute;
     inset: 0;
@@ -125,186 +145,289 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     pointer-events: none;
   }
 
-  /* 容器（无旋转） */
-  .comet-orbit {
-    width: 200px;
-    height: 100px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  /* 彗星整体，向右上方倾斜约 35° */
+  .tiamat-comet {
     position: relative;
+    width: 300px;
+    height: 120px;
+    transform: rotate(-35deg);
+    transition: transform 0.3s ease;
   }
 
-  /* 彗星本体 */
-  .comet {
-    position: relative;
-    width: 0;
-    height: 0;
+  .comet-wrapper:hover .tiamat-comet {
+    transform: rotate(-35deg) scale(1.06);
   }
 
-  /* 彗核：白色核心 + 七彩辉光 */
-  .comet-head {
+  /* ====== 彗核 ====== */
+  .nucleus {
     position: absolute;
-    width: 10px;
-    height: 10px;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 60px;
+    height: 60px;
+    z-index: 5;
+  }
+
+  /* 核心白点 */
+  .core-dot {
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    width: 8px; height: 8px;
     background: #fff;
     border-radius: 50%;
-    transform: translate(-50%, -50%);
     box-shadow:
-      0 0 4px #fff,
-      0 0 10px #fff,
-      0 0 20px #ff0000,
-      0 0 30px #ff7f00,
-      0 0 40px #ffff00,
-      0 0 50px #00ff00,
-      0 0 60px #0000ff,
-      0 0 70px #4b0082,
-      0 0 80px #9400d3;
-    animation: comet-glow 2s ease-in-out infinite;
+      0 0 3px #fff,
+      0 0 8px #fff,
+      0 0 18px #e0f0ff,
+      0 0 30px #a0d4ff;
+    z-index: 3;
+    animation: core-twinkle 1.8s ease-in-out infinite;
   }
 
-  /* 彗核七彩呼吸 */
-  @keyframes comet-glow {
-    0%, 100% {
-      box-shadow:
-        0 0 4px #fff,
-        0 0 10px #fff,
-        0 0 20px #ff0000,
-        0 0 30px #ff7f00,
-        0 0 40px #ffff00,
-        0 0 50px #00ff00,
-        0 0 60px #0000ff,
-        0 0 70px #4b0082,
-        0 0 80px #9400d3;
-      transform: translate(-50%, -50%) scale(1);
-    }
-    50% {
-      box-shadow:
-        0 0 6px #fff,
-        0 0 14px #fff,
-        0 0 28px #ff0000,
-        0 0 40px #ff7f00,
-        0 0 52px #ffff00,
-        0 0 64px #00ff00,
-        0 0 76px #0000ff,
-        0 0 88px #4b0082,
-        0 0 100px #9400d3;
-      transform: translate(-50%, -50%) scale(1.3);
-    }
+  @keyframes core-twinkle {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.7; transform: scale(1.35); }
   }
 
-  /* 彗尾：七彩渐变拖尾 */
-  .comet-tail {
+  /* 十字光 flare 线 */
+  .flare-line {
     position: absolute;
-    top: 0;
-    left: -120px;
-    width: 110px;
-    height: 3px;
-    background: linear-gradient(to left,
-      rgba(255,255,255,0.95) 0%,
-      #ff0000 8%,
-      #ff7f00 20%,
-      #ffff00 33%,
-      #00ff00 46%,
-      #0000ff 60%,
-      #4b0082 74%,
-      #9400d3 87%,
-      transparent 100%);
-    border-radius: 2px;
-    transform: translateY(-50%);
-    filter: blur(0.5px);
-    animation: tail-shimmer 2s ease-in-out infinite;
+    background: linear-gradient(90deg, transparent, rgba(200,230,255,0.9), #fff, rgba(200,230,255,0.9), transparent);
+    z-index: 2;
+    animation: flare-shimmer 1.8s ease-in-out infinite;
   }
 
-  @keyframes tail-shimmer {
-    0%, 100% { opacity: 0.8; }
+  .flare-h {
+    top: 50%;
+    left: -6px;
+    right: -6px;
+    height: 1.5px;
+    transform: translateY(-50%);
+  }
+
+  .flare-v {
+    left: 50%;
+    top: -6px;
+    bottom: -6px;
+    width: 1.5px;
+    transform: translateX(-50%);
+  }
+
+  @keyframes flare-shimmer {
+    0%, 100% { opacity: 0.5; }
     50% { opacity: 1; }
   }
 
-  /* 尾迹粒子 — 七色分配 */
-  .comet-particle {
+  /* 辉光环 */
+  .glow-ring {
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    border-radius: 50%;
+    border: 1px solid rgba(180,220,255,0.5);
+    animation: ring-breathe 2.5s ease-out infinite;
+  }
+
+  .ring-a {
+    width: 20px; height: 20px;
+    animation-delay: 0s;
+    border-color: rgba(220,240,255,0.7);
+  }
+
+  .ring-b {
+    width: 35px; height: 35px;
+    animation-delay: 0.6s;
+    border-color: rgba(170,210,255,0.45);
+  }
+
+  .ring-c {
+    width: 52px; height: 52px;
+    animation-delay: 1.2s;
+    border-color: rgba(140,180,240,0.25);
+  }
+
+  @keyframes ring-breathe {
+    0%   { opacity: 0.2; transform: scale(0.6); }
+    40%  { opacity: 0.9; transform: scale(1); }
+    100% { opacity: 0;   transform: scale(1.5); }
+  }
+
+  /* ====== 离子尾（蓝/青，细长明亮） ====== */
+  .ion-tail {
+    position: absolute;
+    right: 45px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 3;
+  }
+
+  .ion-tail-core {
+    width: 200px;
+    height: 2px;
+    background: linear-gradient(to left,
+      rgba(255,255,255,0.95) 0%,
+      rgba(200,235,255,0.8) 10%,
+      rgba(130,210,255,0.5) 35%,
+      rgba(80,180,240,0.2) 65%,
+      transparent 100%);
+    border-radius: 1px;
+    animation: ion-pulse 2s ease-in-out infinite;
+  }
+
+  .ion-tail-glow {
+    position: absolute;
+    top: -3px; left: 0;
+    width: 200px;
+    height: 8px;
+    background: linear-gradient(to left,
+      rgba(180,225,255,0.5) 0%,
+      rgba(100,195,240,0.25) 30%,
+      transparent 100%);
+    border-radius: 4px;
+    filter: blur(3px);
+    animation: ion-pulse 2s ease-in-out 0.3s infinite;
+  }
+
+  @keyframes ion-pulse {
+    0%, 100% { opacity: 0.75; }
+    50% { opacity: 1; }
+  }
+
+  /* ====== 尘埃尾（紫/品红，宽而弥散） ====== */
+  .dust-tail {
+    position: absolute;
+    right: 40px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+  }
+
+  .dust-tail-core {
+    width: 240px;
+    height: 3px;
+    background: linear-gradient(to left,
+      rgba(255,220,240,0.8) 0%,
+      rgba(220,160,220,0.5) 15%,
+      rgba(180,120,210,0.3) 40%,
+      rgba(140,100,190,0.1) 70%,
+      transparent 100%);
+    border-radius: 1.5px;
+    animation: dust-shift 2.4s ease-in-out infinite;
+  }
+
+  .dust-tail-glow {
+    position: absolute;
+    top: -8px; left: 0;
+    width: 240px;
+    height: 22px;
+    background: linear-gradient(to left,
+      rgba(230,190,230,0.35) 0%,
+      rgba(200,150,210,0.18) 25%,
+      rgba(160,120,190,0.06) 60%,
+      transparent 100%);
+    border-radius: 11px;
+    filter: blur(6px);
+    animation: dust-shift 2.4s ease-in-out 0.5s infinite;
+  }
+
+  @keyframes dust-shift {
+    0%, 100% { opacity: 0.6; transform: translateY(0); }
+    50% { opacity: 0.9; transform: translateY(-2px); }
+  }
+
+  /* ====== 碎片粒子 ====== */
+  .fragments {
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+  }
+
+  .frag {
     position: absolute;
     border-radius: 50%;
-    animation: particle-fade 2.2s ease-out infinite;
+    background: #fff;
+    animation: frag-drift 2.8s ease-out infinite;
   }
 
-  .comet-particle.p1 {
-    width: 4px; height: 4px;
-    left: -25px; top: -5px;
-    animation-delay: 0s;
-    background: #ff0000;
-    box-shadow: 0 0 8px #ff0000;
+  .f1 { width: 3px; height: 3px; top: 52%; left: 20%;
+        box-shadow: 0 0 6px #a0d8ff; animation-delay: 0s; }
+  .f2 { width: 2px; height: 2px; top: 38%; left: 35%;
+        box-shadow: 0 0 4px #c0c0ff; animation-delay: 0.4s; }
+  .f3 { width: 2.5px; height: 2.5px; top: 58%; left: 28%;
+        box-shadow: 0 0 5px #d0b0ff; animation-delay: 0.7s; }
+  .f4 { width: 1.5px; height: 1.5px; top: 44%; left: 50%;
+        box-shadow: 0 0 3px #b0e0ff; animation-delay: 1.0s; }
+  .f5 { width: 2px; height: 2px; top: 55%; left: 42%;
+        box-shadow: 0 0 4px #c0d0ff; animation-delay: 1.3s; }
+  .f6 { width: 1.8px; height: 1.8px; top: 60%; left: 55%;
+        box-shadow: 0 0 3px #e0c0ff; animation-delay: 1.6s; }
+  .f7 { width: 2.2px; height: 2.2px; top: 40%; left: 48%;
+        box-shadow: 0 0 5px #a0c8ff; animation-delay: 1.9s; }
+  .f8 { width: 1.5px; height: 1.5px; top: 48%; left: 62%;
+        box-shadow: 0 0 3px #c0b0f0; animation-delay: 2.2s; }
+
+  @keyframes frag-drift {
+    0%   { opacity: 0; transform: translate(0, 0) scale(0.3); }
+    15%  { opacity: 1; transform: translate(-4px, -2px) scale(1); }
+    40%  { opacity: 0.7; transform: translate(-10px, 3px) scale(0.8); }
+    100% { opacity: 0; transform: translate(-20px, -4px) scale(0.1); }
   }
 
-  .comet-particle.p2 {
-    width: 3.5px; height: 3.5px;
-    left: -45px; top: 6px;
-    animation-delay: 0.4s;
-    background: #ffaa00;
-    box-shadow: 0 0 7px #ffaa00;
+  /* ====== 悬停增强 ====== */
+  .comet-wrapper:hover .core-dot {
+    animation-duration: 0.7s;
+    box-shadow:
+      0 0 5px #fff,
+      0 0 12px #fff,
+      0 0 26px #d0e8ff,
+      0 0 42px #80c8ff;
   }
 
-  .comet-particle.p3 {
-    width: 3px; height: 3px;
-    left: -60px; top: -3px;
-    animation-delay: 0.8s;
-    background: #33cc33;
-    box-shadow: 0 0 6px #33cc33;
+  .comet-wrapper:hover .flare-line {
+    animation-duration: 0.6s;
   }
 
-  .comet-particle.p4 {
-    width: 2.5px; height: 2.5px;
-    left: -75px; top: 2px;
-    animation-delay: 1.2s;
-    background: #6666ff;
-    box-shadow: 0 0 5px #6666ff;
+  .comet-wrapper:hover .ring-a,
+  .comet-wrapper:hover .ring-b,
+  .comet-wrapper:hover .ring-c {
+    animation-duration: 1.2s;
   }
 
-  .comet-particle.p5 {
-    width: 2px; height: 2px;
-    left: -90px; top: -1px;
-    animation-delay: 1.6s;
-    background: #cc33ff;
-    box-shadow: 0 0 4px #cc33ff;
-  }
-
-  /* 粒子闪烁消散 */
-  @keyframes particle-fade {
-    0%   { opacity: 0;   transform: scale(0.2); }
-    15%  { opacity: 1;   transform: scale(1.2); }
-    100% { opacity: 0;   transform: scale(0); }
-  }
-
-  /* 悬停增强 */
-  .comet-wrapper:hover .comet-head {
-    animation-duration: 0.8s;
-  }
-
-  .comet-wrapper:hover .comet-tail {
-    filter: blur(0px);
-    opacity: 1;
-  }
-
+  /* ====== 响应式 ====== */
   @media (max-width: 480px) {
-    .comet-orbit {
+    .tiamat-comet {
+      width: 210px;
+      height: 85px;
+      transform: rotate(-30deg);
+    }
+
+    .comet-wrapper:hover .tiamat-comet {
+      transform: rotate(-30deg) scale(1.06);
+    }
+
+    .nucleus {
+      right: 10px;
+      width: 42px; height: 42px;
+    }
+
+    .core-dot {
+      width: 6px; height: 6px;
+    }
+
+    .ion-tail-core {
       width: 140px;
-      height: 70px;
+    }
+    .ion-tail-glow {
+      width: 140px;
     }
 
-    .comet-head {
-      width: 8px; height: 8px;
+    .dust-tail-core {
+      width: 170px;
     }
-
-    .comet-tail {
-      width: 75px;
-      left: -82px;
-      height: 2px;
+    .dust-tail-glow {
+      width: 170px;
     }
-
-    .comet-particle.p1 { left: -20px; }
-    .comet-particle.p2 { left: -32px; }
-    .comet-particle.p3 { left: -44px; }
-    .comet-particle.p4 { left: -55px; }
-    .comet-particle.p5 { left: -65px; }
   }
 </style>
