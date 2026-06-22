@@ -167,17 +167,17 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   }
 
   .orbit-1 {
-    width: 260px;
-    height: 260px;
-    margin: -130px 0 0 -130px;
-    animation: orbit-spin 6s linear infinite;
+    width: 170px;
+    height: 170px;
+    margin: -85px 0 0 -85px;
+    animation: orbit-spin 10s linear infinite;
   }
 
   .orbit-2 {
-    width: 340px;
-    height: 340px;
-    margin: -170px 0 0 -170px;
-    animation: orbit-spin 8s linear infinite reverse;
+    width: 220px;
+    height: 220px;
+    margin: -110px 0 0 -110px;
+    animation: orbit-spin 13s linear infinite reverse;
   }
 
   @keyframes orbit-spin {
@@ -197,10 +197,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
   /* 反转旋转让小彗星保持大致朝向 */
   .orbit-1 .mini-comet {
-    animation: keep-upright 6s linear infinite;
+    animation: keep-upright 10s linear infinite;
   }
   .orbit-2 .mini-comet {
-    animation: keep-upright 8s linear infinite reverse;
+    animation: keep-upright 13s linear infinite reverse;
   }
 
   @keyframes keep-upright {
@@ -209,15 +209,16 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   }
 
   .mini-head {
-    width: 5px;
-    height: 5px;
+    width: 7px;
+    height: 7px;
     background: #fff;
     border-radius: 50%;
     box-shadow:
-      0 0 3px #fff,
-      0 0 8px #fff,
-      0 0 16px #ffb8c6,
-      0 0 24px #ff9ab5;
+      0 0 4px #fff,
+      0 0 10px #fff,
+      0 0 20px #ffb8c6,
+      0 0 30px #ff9ab5,
+      0 0 40px #ff7f9c;
     flex-shrink: 0;
     animation: mini-twinkle 1.5s ease-in-out infinite;
   }
@@ -229,29 +230,29 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
   .mini-tail {
     width: 70px;
-    height: 1.5px;
+    height: 2.5px;
     background: linear-gradient(to right,
-      rgba(255,255,255,0.9) 0%,
-      rgba(255,210,220,0.65) 15%,
-      rgba(255,180,195,0.4) 35%,
-      rgba(255,160,180,0.15) 60%,
+      rgba(255,255,255,0.95) 0%,
+      rgba(255,210,220,0.7) 15%,
+      rgba(255,180,195,0.45) 35%,
+      rgba(255,160,180,0.18) 60%,
       transparent 100%);
-    border-radius: 1px;
+    border-radius: 1.5px;
     flex-shrink: 0;
   }
 
   /* 悬停时小彗星加速 */
   .comet-wrapper:hover .orbit-1 {
-    animation-duration: 2.5s;
+    animation-duration: 4s;
   }
   .comet-wrapper:hover .orbit-2 {
-    animation-duration: 3.2s;
+    animation-duration: 5s;
   }
   .comet-wrapper:hover .orbit-1 .mini-comet {
-    animation-duration: 2.5s;
+    animation-duration: 4s;
   }
   .comet-wrapper:hover .orbit-2 .mini-comet {
-    animation-duration: 3.2s;
+    animation-duration: 5s;
   }
 
   /* ====== 主彗星，自右上至左下倾斜 ====== */
@@ -283,14 +284,15 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     position: absolute;
     inset: 0;
     margin: auto;
-    width: 8px; height: 8px;
+    width: 12px; height: 12px;
     background: #fff;
     border-radius: 50%;
     box-shadow:
-      0 0 3px #fff,
-      0 0 8px #fff,
-      0 0 18px #e0f0ff,
-      0 0 30px #a0d4ff;
+      0 0 5px #fff,
+      0 0 12px #fff,
+      0 0 26px #e0f0ff,
+      0 0 42px #87ceeb,
+      0 0 60px #5bbce4;
     z-index: 3;
     animation: core-twinkle 1.8s ease-in-out infinite;
   }
@@ -345,27 +347,27 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
   .ion-tail-core {
     width: 200px;
-    height: 2px;
+    height: 3.5px;
     background: linear-gradient(to left,
       rgba(255,255,255,0.95) 0%,
       rgba(200,235,255,0.8) 10%,
       rgba(130,210,255,0.5) 35%,
       rgba(80,180,240,0.2) 65%,
       transparent 100%);
-    border-radius: 1px;
+    border-radius: 2px;
     animation: ion-pulse 2s ease-in-out infinite;
   }
 
   .ion-tail-glow {
     position: absolute;
-    top: -3px; left: 0;
+    top: -5px; left: 0;
     width: 200px;
-    height: 8px;
+    height: 14px;
     background: linear-gradient(to left,
       rgba(180,225,255,0.5) 0%,
       rgba(100,195,240,0.25) 30%,
       transparent 100%);
-    border-radius: 4px;
+    border-radius: 7px;
     filter: blur(3px);
     animation: ion-pulse 2s ease-in-out 0.3s infinite;
   }
@@ -386,28 +388,28 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
   .dust-tail-core {
     width: 240px;
-    height: 3px;
+    height: 5px;
     background: linear-gradient(to left,
       rgba(200,235,255,0.8) 0%,
       rgba(150,215,245,0.5) 15%,
       rgba(100,195,235,0.3) 40%,
       rgba(60,170,220,0.1) 70%,
       transparent 100%);
-    border-radius: 1.5px;
+    border-radius: 2.5px;
     animation: dust-shift 2.4s ease-in-out infinite;
   }
 
   .dust-tail-glow {
     position: absolute;
-    top: -8px; left: 0;
+    top: -10px; left: 0;
     width: 240px;
-    height: 22px;
+    height: 32px;
     background: linear-gradient(to left,
       rgba(180,225,250,0.35) 0%,
       rgba(130,210,240,0.18) 25%,
       rgba(80,190,230,0.06) 60%,
       transparent 100%);
-    border-radius: 11px;
+    border-radius: 16px;
     filter: blur(6px);
     animation: dust-shift 2.4s ease-in-out 0.5s infinite;
   }
@@ -459,10 +461,11 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   .comet-wrapper:hover .core-dot {
     animation-duration: 0.7s;
     box-shadow:
-      0 0 5px #fff,
-      0 0 12px #fff,
-      0 0 26px #87ceeb,
-      0 0 42px #5bbce4;
+      0 0 8px #fff,
+      0 0 18px #fff,
+      0 0 36px #87ceeb,
+      0 0 56px #5bbce4,
+      0 0 80px #3aa8d8;
   }
 
   .comet-wrapper:hover .ring-a,
@@ -474,12 +477,12 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   /* ====== 响应式 ====== */
   @media (max-width: 480px) {
     .orbit-1 {
-      width: 180px; height: 180px;
-      margin: -90px 0 0 -90px;
+      width: 130px; height: 130px;
+      margin: -65px 0 0 -65px;
     }
     .orbit-2 {
-      width: 240px; height: 240px;
-      margin: -120px 0 0 -120px;
+      width: 170px; height: 170px;
+      margin: -85px 0 0 -85px;
     }
 
     .mini-tail {
