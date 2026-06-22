@@ -7,9 +7,12 @@ import '../styles/global.css';
 export interface Props {
   title?: string;
   description?: string;
+  showNavbar?: boolean;
+  showFooter?: boolean;
+  showMusic?: boolean;
 }
 
-const { title, description } = Astro.props;
+const { title, description, showNavbar = true, showFooter = true, showMusic = true } = Astro.props;
 const fullTitle = title ? `${title} — 我的blog` : '我的blog — 记录生活';
 ---
 
@@ -28,11 +31,11 @@ const fullTitle = title ? `${title} — 我的blog` : '我的blog — 记录生�
     <title>{fullTitle}</title>
   </head>
   <body>
-    <Navbar />
+    {showNavbar && <Navbar />}
     <main>
       <slot />
     </main>
-    <Footer />
-    <MusicPlayer />
+    {showFooter && <Footer />}
+    {showMusic && <MusicPlayer />}
   </body>
 </html>

@@ -18,8 +18,8 @@ const { Content } = await entry.render();
 
 <BaseLayout title={title} description={entry.body?.substring(0, 160).replace(/[#*>`-]/g, '').trim()}>
   <div class="container-narrow diary-page">
-    <a href="/" class="back-link">
-      <span class="back-arrow">←</span> 返回首页
+    <a href="/diary" class="back-link">
+      <span class="back-arrow">←</span> 返回日记列表
     </a>
 
     <article class="diary-detail glass">
@@ -55,8 +55,8 @@ const { Content } = await entry.render();
 
       <footer class="diary-footer">
         <div class="diary-footer-divider"></div>
-        <a href="/" class="back-link">
-          <span class="back-arrow">←</span> 返回首页看更多
+        <a href="/diary" class="back-link">
+          <span class="back-arrow">←</span> 返回日记列表看更多
         </a>
       </footer>
     </article>

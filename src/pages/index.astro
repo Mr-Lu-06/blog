@@ -1,286 +1,203 @@
 ---
-import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
-import DiaryCard from '../components/DiaryCard.astro';
-import ProfileCard from '../components/ProfileCard.astro';
-import VideoHero from '../components/VideoHero.astro';
-import { sortByDate } from '../utils/date';
-
-const diaries = await getCollection('diary');
-const sorted = sortByDate(diaries);
-
-// 是否启用视频封面：true=视频  false=静态Hero
-const useVideo = true;
-const videoSrc = '/video/hero.mp4';
 ---
 
-<BaseLayout
-  title="日记"
-  description="记录生活的每一天"
->
-  <!-- Video Hero — 全宽铺满 -->
-  {useVideo ? (
-    <VideoHero src={videoSrc} />
-  ) : (
-    <section class="hero glass">
-      <div class="hero-content">
-        <h1 class="hero-title">
-          欢迎来到我的小窝
-        </h1>
-        <p class="hero-subtitle">用文字和照片，珍藏每一天的小美好</p>
-      </div>
-    </section>
-  )}
+<BaseLayout title="欢迎" showNavbar={false} showFooter={false} showMusic={false}>
+  <div class="splash" id="splash">
+    <!-- 阶段1：首页动画（手动播放） -->
+    <video
+      id="video-shouye"
+      class="splash-video active"
+      src="/video/shouye.mp4"
+      muted
+      playsinline
+      preload="auto"
+    ></video>
 
-  <div class="container home-page">
+    <!-- 阶段2：转场动画（自动播放，初始隐藏） -->
+    <video
+      id="video-zhuanchang"
+      class="splash-video"
+      src="/video/zhuanchang.mp4"
+      muted
+      playsinline
+      preload="auto"
+    ></video>
 
-    <!-- Main content: Two-column layout -->
-    <div class="home-layout">
-      <!-- Left: Diary Grid -->
-      <div class="home-main">
-        <!-- Tag filters -->
-        <div class="tag-filters" id="tag-filters">
-          <button class="tag-filter-btn active" data-tag="all">全部</button>
-        </div>
-
-        <div id="diary-grid">
-          {sorted.length > 0 ? (
-            <div class="diary-grid">
-              {sorted.map((entry) => (
-                <div class="diary-item" data-tags={JSON.stringify(entry.data.tags || [])}>
-                  <DiaryCard
-                    title={entry.data.title}
-                    date={entry.data.date}
-                    slug={entry.id}
-                    tags={entry.data.tags}
-                    mood={entry.data.mood}
-                    weather={entry.data.weather}
-                    featured_image={entry.data.featured_image}
-                    excerpt={(entry.body || '').replace(/[#*>`-]/g, '').substring(0, 100).trim() || '...'}
-                  />
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div class="empty-state">
-              <span class="empty-icon"></span>
-              <p>还没有日记，去后台写第一篇吧！</p>
-            </div>
-          )}
-        </div>
-      </div>
-
-      <!-- Right: Sidebar -->
-      <div class="home-sidebar">
-        <ProfileCard />
+    <!-- 中心闪光点 -->
+    <div class="glow-dot-wrapper" id="glow-dot">
+      <div class="glow-dot">
+        <div class="glow-ring ring-1"></div>
+        <div class="glow-ring ring-2"></div>
+        <div class="glow-ring ring-3"></div>
+        <div class="glow-core"></div>
       </div>
     </div>
   </div>
 </BaseLayout>
 
-<!-- Tag filtering -->
 <script>
-  const items = document.querySelectorAll('.diary-item');
-  const tags = new Set();
-  items.forEach(item => {
-    try { JSON.parse(item.dataset.tags).forEach(t => tags.add(t)); } catch {}
-  });
-  const filterContainer = document.getElementById('tag-filters');
-  [...tags].sort().forEach(tag => {
-    const btn = document.createElement('button');
-    btn.className = 'tag-filter-btn';
-    btn.textContent = tag;
-    btn.dataset.tag = tag;
-    btn.addEventListener('click', () => filterByTag(tag, btn));
-    filterContainer.appendChild(btn);
-  });
-  function filterByTag(tag, activeBtn) {
-    document.querySelectorAll('.tag-filter-btn').forEach(b => b.classList.remove('active'));
-    activeBtn.classList.add('active');
-    items.forEach(item => {
-      try {
-        const itemTags = JSON.parse(item.dataset.tags);
-        item.style.display = itemTags.includes(tag) ? '' : 'none';
-      } catch { item.style.display = 'none'; }
+  const shouye = document.getElementById('video-shouye');
+  const zhuanchang = document.getElementById('video-zhuanchang');
+  const glowDot = document.getElementById('glow-dot');
+
+  const startFlow = () => {
+    glowDot.classList.add('hidden');
+    shouye.playbackRate = 1.25;
+    shouye.play().catch(() => {
+      // 播放失败，直接跳转阶段2
+      shouye.classList.remove('active');
+      zhuanchang.classList.add('active');
+      zhuanchang.play().catch(() => {
+        document.querySelector('.splash').style.opacity = '0';
+        setTimeout(() => window.location.href = '/diary', 400);
+      });
     });
-  }
-  document.querySelector('.tag-filter-btn[data-tag="all"]').addEventListener('click', function() {
-    document.querySelectorAll('.tag-filter-btn').forEach(b => b.classList.remove('active'));
-    this.classList.add('active');
-    items.forEach(item => item.style.display = '');
+  };
+
+  // 点击闪光点开始
+  glowDot.addEventListener('click', startFlow);
+
+  // 阶段1 → 阶段2
+  shouye.addEventListener('ended', () => {
+    shouye.classList.remove('active');
+    zhuanchang.classList.add('active');
+    zhuanchang.play().catch(() => {});
+  });
+
+  // 阶段2 → 跳转
+  zhuanchang.addEventListener('ended', () => {
+    document.querySelector('.splash').style.opacity = '0';
+    setTimeout(() => window.location.href = '/diary', 400);
+  });
+
+  zhuanchang.addEventListener('error', () => {
+    window.location.href = '/diary';
   });
 </script>
 
 <style>
-  .home-page {
-    padding-top: 32px;
-    padding-bottom: 60px;
-  }
-
-  /* ===== Hero ===== */
-  .hero {
-    position: relative;
-    border-radius: var(--radius-xl);
-    padding: 36px 40px;
-    margin-bottom: 32px;
+  .splash {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: #000;
     overflow: hidden;
-    transition: all 0.3s ease;
+    transition: opacity 0.5s ease;
   }
 
-  .hero:hover {
-    box-shadow: var(--shadow-md);
+  .splash-video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
   }
 
-  .hero-content {
-    position: relative;
-    z-index: 1;
+  .splash-video.active {
+    opacity: 1;
+    pointer-events: auto;
   }
 
-  .hero-title {
-    font-size: 1.8rem;
-    font-weight: 900;
-    margin: 0 0 8px;
-    color: var(--text-primary);
-  }
-
-  .hero-subtitle {
-    font-size: 1rem;
-    color: var(--text-secondary);
-    margin: 0;
-  }
-
-  /* ===== Two-column Layout ===== */
-  .home-layout {
-    display: grid;
-    grid-template-columns: 1fr 300px;
-    gap: 28px;
-    align-items: start;
-  }
-
-  .home-main {
-    min-width: 0;
-  }
-
-  .home-sidebar {
-    position: relative;
-  }
-
-  /* ===== Tag Filters ===== */
-  .tag-filters {
+  /* ===== 中心闪光点 ===== */
+  .glow-dot-wrapper {
+    position: absolute;
+    inset: 0;
     display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 24px;
-  }
-
-  .tag-filter-btn {
-    padding: 7px 18px;
-    border: 1.5px solid var(--border-color);
-    border-radius: 24px;
-    background: var(--bg-card);
-    color: var(--text-secondary);
-    font-size: 0.85rem;
-    font-weight: 500;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
     cursor: pointer;
-    transition: all 0.3s ease;
-    font-family: inherit;
+    transition: opacity 0.5s ease;
   }
 
-  .tag-filter-btn:hover {
-    border-color: var(--accent);
-    color: var(--accent);
-    background: var(--accent-light);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(240, 132, 108, 0.15);
+  .glow-dot-wrapper.hidden {
+    opacity: 0;
+    pointer-events: none;
   }
 
-  .tag-filter-btn.active {
-    background: var(--gradient-warm);
-    color: #fff;
-    border-color: transparent;
-    box-shadow: 0 4px 16px rgba(240, 132, 108, 0.3);
+  .glow-dot {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
-  /* ===== Diary Grid (Masonry-like 2 col) ===== */
-  .diary-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 20px;
+  /* 核心亮点 */
+  .glow-core {
+    width: 12px;
+    height: 12px;
+    background: #fff;
+    border-radius: 50%;
+    z-index: 3;
+    box-shadow:
+      0 0 10px #fff,
+      0 0 30px rgba(255,255,255,0.9),
+      0 0 60px rgba(240,132,108,0.7),
+      0 0 100px rgba(240,132,108,0.4);
+    animation: pulse-core 1.8s ease-in-out infinite;
   }
 
-  /* Staggered card heights for magazine feel */
-  .diary-item:nth-child(3n+1) .diary-card {
-    margin-top: 0;
-  }
-  .diary-item:nth-child(3n+2) .diary-card {
-    margin-top: 12px;
-  }
-  .diary-item:nth-child(3n) .diary-card {
-    margin-top: -8px;
+  @keyframes pulse-core {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.6); opacity: 0.6; }
   }
 
-  .empty-state {
-    text-align: center;
-    padding: 80px 20px;
-    color: var(--text-secondary);
+  /* 扩散光环 */
+  .glow-ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 1.5px solid rgba(255,255,255,0.5);
+    animation: ring-expand 2.4s ease-out infinite;
   }
 
-  .empty-icon {
-    font-size: 3rem;
-    display: block;
-    margin-bottom: 16px;
-  }
+  .ring-1 { animation-delay: 0s; }
+  .ring-2 { animation-delay: 0.8s; }
+  .ring-3 { animation-delay: 1.6s; }
 
-  .empty-state p {
-    font-size: 1.05rem;
-  }
-
-  /* ===== Responsive ===== */
-  @media (max-width: 900px) {
-    .home-layout {
-      grid-template-columns: 1fr;
+  @keyframes ring-expand {
+    0% {
+      width: 12px;
+      height: 12px;
+      opacity: 0.9;
     }
-
-    .home-sidebar {
-      order: -1;
-    }
-
-    .profile-card {
-      position: static !important;
+    100% {
+      width: 90px;
+      height: 90px;
+      opacity: 0;
     }
   }
 
-  @media (max-width: 768px) {
-    .hero {
-      padding: 28px 24px;
-    }
+  /* 悬停增强 */
+  .glow-dot-wrapper:hover .glow-core {
+    box-shadow:
+      0 0 14px #fff,
+      0 0 40px rgba(255,255,255,1),
+      0 0 80px rgba(240,132,108,0.9),
+      0 0 130px rgba(240,132,108,0.6);
+  }
 
-    .hero-title {
-      font-size: 1.4rem;
-    }
-
-    .diary-grid {
-      grid-template-columns: repeat(2, 1fr);
-      gap: 14px;
-    }
+  .glow-dot-wrapper:hover .glow-ring {
+    border-color: rgba(255,255,255,0.8);
   }
 
   @media (max-width: 480px) {
-    .hero {
-      padding: 24px 18px;
+    .glow-dot {
+      width: 60px;
+      height: 60px;
     }
-
-    .hero-title {
-      font-size: 1.2rem;
+    .glow-core {
+      width: 10px;
+      height: 10px;
     }
-
-    .diary-grid {
-      grid-template-columns: 1fr;
-    }
-
-    .diary-item:nth-child(3n+2) .diary-card,
-    .diary-item:nth-child(3n) .diary-card {
-      margin-top: 0;
+    @keyframes ring-expand {
+      0% { width: 10px; height: 10px; opacity: 0.9; }
+      100% { width: 70px; height: 70px; opacity: 0; }
     }
   }
 </style>

@@ -300,6 +300,25 @@ const sorted = sortByDate(diaries);
 
 <script>
   const REPO = 'Mr-Lu-06/blog';
+	  const PENDING_KEY = 'pending_diaries';
+
+	  function addPendingDiary(data) {
+	    const entry = {
+	      title: data.title,
+	      date: data.date,
+	      slug: data.slug,
+	      tags: JSON.parse(data.yaml.match(/tags:\s*(\[.*\])/)?.[1] || '[]'),
+	      mood: (data.yaml.match(/mood:\s*"(.+)"/)?.[1] || ''),
+	      weather: (data.yaml.match(/weather:\s*"(.+)"/)?.[1] || ''),
+	      excerpt: (data.body || '').replace(/[#*>`-]/g, '').substring(0, 100).trim(),
+	    };
+	    let pending = [];
+	    try { pending = JSON.parse(localStorage.getItem(PENDING_KEY)) || []; } catch {}
+	    pending = pending.filter(d => d.slug !== entry.slug);
+	    pending.unshift(entry);
+	    if (pending.length > 20) pending = pending.slice(0, 20);
+	    localStorage.setItem(PENDING_KEY, JSON.stringify(pending));
+	  }
   const BRANCH = 'main';
 
   const toast = (msg, type) => {
@@ -407,7 +426,7 @@ const sorted = sortByDate(diaries);
         throw new Error(res.status + ': ' + err.substring(0, 100));
       }
 
-      toast('已发布！Cloudflare 部署中...', 'success');
+      toast('已发布！页面即时可见，服务器部署中...', 'success');
       document.getElementById('field-body').value = '';
       document.getElementById('field-title').value = '';
 
