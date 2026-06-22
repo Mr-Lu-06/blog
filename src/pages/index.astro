@@ -26,19 +26,15 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
     <!-- 《你的名字》蒂亚马特彗星 -->
     <div class="comet-wrapper" id="glow-dot">
-      <!-- 环绕小彗星 1（白粉色） -->
-      <div class="orbit-ring orbit-1">
-        <div class="mini-comet">
-          <div class="mini-head"></div>
-          <div class="mini-tail"></div>
-        </div>
+      <!-- 交叉小彗星 1（白粉色，与主彗星交叉） -->
+      <div class="cross-comet cross-1">
+        <div class="mini-head"></div>
+        <div class="mini-tail"></div>
       </div>
-      <!-- 环绕小彗星 2（白粉色） -->
-      <div class="orbit-ring orbit-2">
-        <div class="mini-comet">
-          <div class="mini-head"></div>
-          <div class="mini-tail"></div>
-        </div>
+      <!-- 交叉小彗星 2（白粉色，与主彗星交叉） -->
+      <div class="cross-comet cross-2">
+        <div class="mini-head"></div>
+        <div class="mini-tail"></div>
       </div>
       <!-- 主体彗星（天蓝色） -->
       <div class="tiamat-comet">
@@ -158,67 +154,42 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     pointer-events: none;
   }
 
-  /* ====== 环绕小彗星（白粉色） ====== */
-  .orbit-ring {
+  /* ====== 交叉小彗星（白粉色） ====== */
+  .cross-comet {
     position: absolute;
     top: 50%; left: 50%;
-    border-radius: 50%;
-    pointer-events: none;
-  }
-
-  .orbit-1 {
-    width: 170px;
-    height: 170px;
-    margin: -85px 0 0 -85px;
-    animation: orbit-spin 10s linear infinite;
-  }
-
-  .orbit-2 {
-    width: 220px;
-    height: 220px;
-    margin: -110px 0 0 -110px;
-    animation: orbit-spin 13s linear infinite reverse;
-  }
-
-  @keyframes orbit-spin {
-    0%   { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-
-  /* 小彗星放在轨道边缘 */
-  .orbit-ring .mini-comet {
-    position: absolute;
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%) rotate(0deg);
     display: flex;
     align-items: center;
+    pointer-events: none;
+    animation: cross-drift 5s ease-in-out infinite alternate;
   }
 
-  /* 反转旋转让小彗星保持大致朝向 */
-  .orbit-1 .mini-comet {
-    animation: keep-upright 10s linear infinite;
+  /* 与主彗星 145° 交叉：一条 215°（镜像），一条 65°（垂直方向） */
+  .cross-1 {
+    transform: translate(-50%, -50%) rotate(215deg);
   }
-  .orbit-2 .mini-comet {
-    animation: keep-upright 13s linear infinite reverse;
+  .cross-2 {
+    transform: translate(-50%, -50%) rotate(65deg);
+    animation-duration: 6s;
+    animation-delay: -2s;
   }
 
-  @keyframes keep-upright {
-    0%   { transform: translateX(-50%) rotate(0deg); }
-    100% { transform: translateX(-50%) rotate(-360deg); }
+  @keyframes cross-drift {
+    0%   { opacity: 0.55; }
+    100% { opacity: 1; }
   }
 
   .mini-head {
-    width: 7px;
-    height: 7px;
+    width: 10px;
+    height: 10px;
     background: #fff;
     border-radius: 50%;
     box-shadow:
-      0 0 4px #fff,
-      0 0 10px #fff,
-      0 0 20px #ffb8c6,
-      0 0 30px #ff9ab5,
-      0 0 40px #ff7f9c;
+      0 0 6px #fff,
+      0 0 14px #fff,
+      0 0 26px #ffb8c6,
+      0 0 38px #ff9ab5,
+      0 0 52px #ff7f9c;
     flex-shrink: 0;
     animation: mini-twinkle 1.5s ease-in-out infinite;
   }
@@ -229,30 +200,24 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   }
 
   .mini-tail {
-    width: 70px;
-    height: 2.5px;
+    width: 100px;
+    height: 4px;
     background: linear-gradient(to right,
       rgba(255,255,255,0.95) 0%,
-      rgba(255,210,220,0.7) 15%,
-      rgba(255,180,195,0.45) 35%,
-      rgba(255,160,180,0.18) 60%,
+      rgba(255,210,220,0.7) 12%,
+      rgba(255,180,195,0.45) 30%,
+      rgba(255,160,180,0.18) 55%,
       transparent 100%);
-    border-radius: 1.5px;
+    border-radius: 2px;
     flex-shrink: 0;
   }
 
-  /* 悬停时小彗星加速 */
-  .comet-wrapper:hover .orbit-1 {
-    animation-duration: 4s;
+  /* 悬停时交叉小彗星更亮 */
+  .comet-wrapper:hover .cross-comet {
+    animation-duration: 2.5s;
   }
-  .comet-wrapper:hover .orbit-2 {
-    animation-duration: 5s;
-  }
-  .comet-wrapper:hover .orbit-1 .mini-comet {
-    animation-duration: 4s;
-  }
-  .comet-wrapper:hover .orbit-2 .mini-comet {
-    animation-duration: 5s;
+  .comet-wrapper:hover .cross-2 {
+    animation-duration: 3s;
   }
 
   /* ====== 主彗星，自右上至左下倾斜 ====== */
@@ -284,15 +249,16 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     position: absolute;
     inset: 0;
     margin: auto;
-    width: 12px; height: 12px;
+    width: 18px; height: 18px;
     background: #fff;
     border-radius: 50%;
     box-shadow:
-      0 0 5px #fff,
-      0 0 12px #fff,
-      0 0 26px #e0f0ff,
-      0 0 42px #87ceeb,
-      0 0 60px #5bbce4;
+      0 0 8px #fff,
+      0 0 18px #fff,
+      0 0 36px #e0f0ff,
+      0 0 56px #87ceeb,
+      0 0 80px #5bbce4,
+      0 0 100px #3aa8d8;
     z-index: 3;
     animation: core-twinkle 1.8s ease-in-out infinite;
   }
@@ -347,28 +313,28 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
   .ion-tail-core {
     width: 200px;
-    height: 3.5px;
+    height: 6px;
     background: linear-gradient(to left,
       rgba(255,255,255,0.95) 0%,
       rgba(200,235,255,0.8) 10%,
       rgba(130,210,255,0.5) 35%,
       rgba(80,180,240,0.2) 65%,
       transparent 100%);
-    border-radius: 2px;
+    border-radius: 3px;
     animation: ion-pulse 2s ease-in-out infinite;
   }
 
   .ion-tail-glow {
     position: absolute;
-    top: -5px; left: 0;
+    top: -7px; left: 0;
     width: 200px;
-    height: 14px;
+    height: 24px;
     background: linear-gradient(to left,
       rgba(180,225,255,0.5) 0%,
       rgba(100,195,240,0.25) 30%,
       transparent 100%);
-    border-radius: 7px;
-    filter: blur(3px);
+    border-radius: 12px;
+    filter: blur(4px);
     animation: ion-pulse 2s ease-in-out 0.3s infinite;
   }
 
@@ -388,29 +354,29 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
   .dust-tail-core {
     width: 240px;
-    height: 5px;
+    height: 8px;
     background: linear-gradient(to left,
       rgba(200,235,255,0.8) 0%,
       rgba(150,215,245,0.5) 15%,
       rgba(100,195,235,0.3) 40%,
       rgba(60,170,220,0.1) 70%,
       transparent 100%);
-    border-radius: 2.5px;
+    border-radius: 4px;
     animation: dust-shift 2.4s ease-in-out infinite;
   }
 
   .dust-tail-glow {
     position: absolute;
-    top: -10px; left: 0;
+    top: -14px; left: 0;
     width: 240px;
-    height: 32px;
+    height: 50px;
     background: linear-gradient(to left,
       rgba(180,225,250,0.35) 0%,
       rgba(130,210,240,0.18) 25%,
       rgba(80,190,230,0.06) 60%,
       transparent 100%);
-    border-radius: 16px;
-    filter: blur(6px);
+    border-radius: 25px;
+    filter: blur(8px);
     animation: dust-shift 2.4s ease-in-out 0.5s infinite;
   }
 
@@ -461,11 +427,12 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   .comet-wrapper:hover .core-dot {
     animation-duration: 0.7s;
     box-shadow:
-      0 0 8px #fff,
-      0 0 18px #fff,
-      0 0 36px #87ceeb,
-      0 0 56px #5bbce4,
-      0 0 80px #3aa8d8;
+      0 0 12px #fff,
+      0 0 24px #fff,
+      0 0 48px #87ceeb,
+      0 0 72px #5bbce4,
+      0 0 100px #3aa8d8,
+      0 0 130px #2088b8;
   }
 
   .comet-wrapper:hover .ring-a,
@@ -476,17 +443,13 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
   /* ====== 响应式 ====== */
   @media (max-width: 480px) {
-    .orbit-1 {
-      width: 130px; height: 130px;
-      margin: -65px 0 0 -65px;
-    }
-    .orbit-2 {
-      width: 170px; height: 170px;
-      margin: -85px 0 0 -85px;
+    .mini-head {
+      width: 7px; height: 7px;
     }
 
     .mini-tail {
-      width: 45px;
+      width: 60px;
+      height: 2.5px;
     }
 
     .tiamat-comet {
@@ -505,21 +468,25 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     }
 
     .core-dot {
-      width: 6px; height: 6px;
+      width: 12px; height: 12px;
     }
 
     .ion-tail-core {
       width: 140px;
+      height: 4px;
     }
     .ion-tail-glow {
       width: 140px;
+      height: 16px;
     }
 
     .dust-tail-core {
       width: 170px;
+      height: 5px;
     }
     .dust-tail-glow {
       width: 170px;
+      height: 32px;
     }
   }
 </style>
