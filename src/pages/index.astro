@@ -35,6 +35,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           <div class="comet-particle p2"></div>
           <div class="comet-particle p3"></div>
           <div class="comet-particle p4"></div>
+          <div class="comet-particle p5"></div>
         </div>
       </div>
     </div>
@@ -107,7 +108,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     pointer-events: auto;
   }
 
-  /* ===== 彗星播放按钮 ===== */
+  /* ===== 七彩彗星播放按钮 ===== */
   .comet-wrapper {
     position: absolute;
     inset: 0;
@@ -124,159 +125,186 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     pointer-events: none;
   }
 
-  /* 椭圆轨道容器 */
+  /* 容器（无旋转） */
   .comet-orbit {
-    width: 180px;
-    height: 180px;
-    animation: orbit-spin 3s linear infinite;
+    width: 200px;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
   }
 
-  /* 彗星本体（挂在旋转容器内） */
+  /* 彗星本体 */
   .comet {
-    position: absolute;
-    top: 50%;
-    left: 50%;
+    position: relative;
     width: 0;
     height: 0;
   }
 
-  /* 彗核：明亮的光点 */
+  /* 彗核：白色核心 + 七彩辉光 */
   .comet-head {
     position: absolute;
-    width: 9px;
-    height: 9px;
+    width: 10px;
+    height: 10px;
     background: #fff;
     border-radius: 50%;
     transform: translate(-50%, -50%);
     box-shadow:
-      0 0 6px #fff,
-      0 0 16px rgba(255,255,255,0.95),
-      0 0 35px rgba(255,200,150,0.8),
-      0 0 60px rgba(240,132,108,0.5);
+      0 0 4px #fff,
+      0 0 10px #fff,
+      0 0 20px #ff0000,
+      0 0 30px #ff7f00,
+      0 0 40px #ffff00,
+      0 0 50px #00ff00,
+      0 0 60px #0000ff,
+      0 0 70px #4b0082,
+      0 0 80px #9400d3;
+    animation: comet-glow 2s ease-in-out infinite;
   }
 
-  /* 彗尾：渐变拖尾 */
+  /* 彗核七彩呼吸 */
+  @keyframes comet-glow {
+    0%, 100% {
+      box-shadow:
+        0 0 4px #fff,
+        0 0 10px #fff,
+        0 0 20px #ff0000,
+        0 0 30px #ff7f00,
+        0 0 40px #ffff00,
+        0 0 50px #00ff00,
+        0 0 60px #0000ff,
+        0 0 70px #4b0082,
+        0 0 80px #9400d3;
+      transform: translate(-50%, -50%) scale(1);
+    }
+    50% {
+      box-shadow:
+        0 0 6px #fff,
+        0 0 14px #fff,
+        0 0 28px #ff0000,
+        0 0 40px #ff7f00,
+        0 0 52px #ffff00,
+        0 0 64px #00ff00,
+        0 0 76px #0000ff,
+        0 0 88px #4b0082,
+        0 0 100px #9400d3;
+      transform: translate(-50%, -50%) scale(1.3);
+    }
+  }
+
+  /* 彗尾：七彩渐变拖尾 */
   .comet-tail {
     position: absolute;
     top: 0;
-    left: -90px;
-    width: 80px;
-    height: 2px;
+    left: -120px;
+    width: 110px;
+    height: 3px;
     background: linear-gradient(to left,
-      rgba(255,255,255,0.9) 0%,
-      rgba(255,220,180,0.6) 25%,
-      rgba(240,132,108,0.25) 60%,
+      rgba(255,255,255,0.95) 0%,
+      #ff0000 8%,
+      #ff7f00 20%,
+      #ffff00 33%,
+      #00ff00 46%,
+      #0000ff 60%,
+      #4b0082 74%,
+      #9400d3 87%,
       transparent 100%);
-    border-radius: 1px;
+    border-radius: 2px;
     transform: translateY(-50%);
+    filter: blur(0.5px);
+    animation: tail-shimmer 2s ease-in-out infinite;
   }
 
-  /* 尾迹粒子 */
+  @keyframes tail-shimmer {
+    0%, 100% { opacity: 0.8; }
+    50% { opacity: 1; }
+  }
+
+  /* 尾迹粒子 — 七色分配 */
   .comet-particle {
     position: absolute;
     border-radius: 50%;
-    background: #fff;
     animation: particle-fade 2.2s ease-out infinite;
   }
 
   .comet-particle.p1 {
-    width: 4px;
-    height: 4px;
-    left: -30px;
-    top: -3px;
+    width: 4px; height: 4px;
+    left: -25px; top: -5px;
     animation-delay: 0s;
-    box-shadow: 0 0 6px rgba(255,200,150,0.7);
+    background: #ff0000;
+    box-shadow: 0 0 8px #ff0000;
   }
 
   .comet-particle.p2 {
-    width: 3px;
-    height: 3px;
-    left: -50px;
-    top: 4px;
-    animation-delay: 0.5s;
-    box-shadow: 0 0 4px rgba(255,180,130,0.6);
+    width: 3.5px; height: 3.5px;
+    left: -45px; top: 6px;
+    animation-delay: 0.4s;
+    background: #ffaa00;
+    box-shadow: 0 0 7px #ffaa00;
   }
 
   .comet-particle.p3 {
-    width: 2.5px;
-    height: 2.5px;
-    left: -65px;
-    top: -2px;
-    animation-delay: 1.0s;
-    box-shadow: 0 0 3px rgba(240,132,108,0.5);
+    width: 3px; height: 3px;
+    left: -60px; top: -3px;
+    animation-delay: 0.8s;
+    background: #33cc33;
+    box-shadow: 0 0 6px #33cc33;
   }
 
   .comet-particle.p4 {
-    width: 2px;
-    height: 2px;
-    left: -78px;
-    top: 1px;
+    width: 2.5px; height: 2.5px;
+    left: -75px; top: 2px;
+    animation-delay: 1.2s;
+    background: #6666ff;
+    box-shadow: 0 0 5px #6666ff;
+  }
+
+  .comet-particle.p5 {
+    width: 2px; height: 2px;
+    left: -90px; top: -1px;
     animation-delay: 1.6s;
-    box-shadow: 0 0 2px rgba(240,132,108,0.35);
+    background: #cc33ff;
+    box-shadow: 0 0 4px #cc33ff;
   }
 
   /* 粒子闪烁消散 */
   @keyframes particle-fade {
-    0% {
-      opacity: 0;
-      transform: scale(0.3);
-    }
-    20% {
-      opacity: 1;
-      transform: scale(1);
-    }
-    100% {
-      opacity: 0;
-      transform: scale(0.1);
-    }
+    0%   { opacity: 0;   transform: scale(0.2); }
+    15%  { opacity: 1;   transform: scale(1.2); }
+    100% { opacity: 0;   transform: scale(0); }
   }
 
-  /* 椭圆轨道旋转 */
-  @keyframes orbit-spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-
-  /* 悬停加速 */
-  .comet-wrapper:hover .comet-orbit {
-    animation-duration: 1.2s;
-  }
-
+  /* 悬停增强 */
   .comet-wrapper:hover .comet-head {
-    box-shadow:
-      0 0 10px #fff,
-      0 0 24px rgba(255,255,255,1),
-      0 0 50px rgba(255,200,150,0.95),
-      0 0 80px rgba(240,132,108,0.7);
+    animation-duration: 0.8s;
   }
 
   .comet-wrapper:hover .comet-tail {
-    background: linear-gradient(to left,
-      rgba(255,255,255,1) 0%,
-      rgba(255,220,180,0.8) 30%,
-      rgba(240,132,108,0.4) 65%,
-      transparent 100%);
+    filter: blur(0px);
+    opacity: 1;
   }
 
   @media (max-width: 480px) {
     .comet-orbit {
-      width: 130px;
-      height: 130px;
+      width: 140px;
+      height: 70px;
     }
 
     .comet-head {
-      width: 7px;
-      height: 7px;
+      width: 8px; height: 8px;
     }
 
     .comet-tail {
-      width: 55px;
-      left: -60px;
+      width: 75px;
+      left: -82px;
+      height: 2px;
     }
 
-    .comet-particle.p1 { left: -22px; }
-    .comet-particle.p2 { left: -35px; }
-    .comet-particle.p3 { left: -45px; }
-    .comet-particle.p4 { left: -52px; }
+    .comet-particle.p1 { left: -20px; }
+    .comet-particle.p2 { left: -32px; }
+    .comet-particle.p3 { left: -44px; }
+    .comet-particle.p4 { left: -55px; }
+    .comet-particle.p5 { left: -65px; }
   }
 </style>
