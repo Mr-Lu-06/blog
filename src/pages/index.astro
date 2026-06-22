@@ -42,10 +42,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       </div>
       <!-- 主体彗星（天蓝色） -->
       <div class="tiamat-comet">
-        <!-- 彗核 + 十字光 flare -->
+        <!-- 彗核 -->
         <div class="nucleus">
-          <div class="flare-line flare-h"></div>
-          <div class="flare-line flare-v"></div>
           <div class="core-dot"></div>
           <div class="glow-ring ring-a"></div>
           <div class="glow-ring ring-b"></div>
@@ -230,12 +228,13 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   }
 
   .mini-tail {
-    width: 35px;
+    width: 70px;
     height: 1.5px;
     background: linear-gradient(to right,
-      rgba(255,255,255,0.85) 0%,
-      rgba(255,200,210,0.55) 30%,
-      rgba(255,170,190,0.2) 65%,
+      rgba(255,255,255,0.9) 0%,
+      rgba(255,210,220,0.65) 15%,
+      rgba(255,180,195,0.4) 35%,
+      rgba(255,160,180,0.15) 60%,
       transparent 100%);
     border-radius: 1px;
     flex-shrink: 0;
@@ -299,35 +298,6 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   @keyframes core-twinkle {
     0%, 100% { opacity: 1; transform: scale(1); }
     50% { opacity: 0.7; transform: scale(1.35); }
-  }
-
-  /* 十字光 flare 线 */
-  .flare-line {
-    position: absolute;
-    background: linear-gradient(90deg, transparent, rgba(200,230,255,0.9), #fff, rgba(200,230,255,0.9), transparent);
-    z-index: 2;
-    animation: flare-shimmer 1.8s ease-in-out infinite;
-  }
-
-  .flare-h {
-    top: 50%;
-    left: -6px;
-    right: -6px;
-    height: 1.5px;
-    transform: translateY(-50%);
-  }
-
-  .flare-v {
-    left: 50%;
-    top: -6px;
-    bottom: -6px;
-    width: 1.5px;
-    transform: translateX(-50%);
-  }
-
-  @keyframes flare-shimmer {
-    0%, 100% { opacity: 0.5; }
-    50% { opacity: 1; }
   }
 
   /* 辉光环 */
@@ -495,10 +465,6 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       0 0 42px #5bbce4;
   }
 
-  .comet-wrapper:hover .flare-line {
-    animation-duration: 0.6s;
-  }
-
   .comet-wrapper:hover .ring-a,
   .comet-wrapper:hover .ring-b,
   .comet-wrapper:hover .ring-c {
@@ -517,7 +483,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     }
 
     .mini-tail {
-      width: 22px;
+      width: 45px;
     }
 
     .tiamat-comet {
