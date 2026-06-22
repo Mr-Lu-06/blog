@@ -24,13 +24,18 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       preload="auto"
     ></video>
 
-    <!-- 中心闪光点 -->
-    <div class="glow-dot-wrapper" id="glow-dot">
-      <div class="glow-dot">
-        <div class="glow-ring ring-1"></div>
-        <div class="glow-ring ring-2"></div>
-        <div class="glow-ring ring-3"></div>
-        <div class="glow-core"></div>
+    <!-- 彗星播放按钮 -->
+    <div class="comet-wrapper" id="glow-dot">
+      <div class="comet-orbit">
+        <div class="comet">
+          <div class="comet-head"></div>
+          <div class="comet-tail"></div>
+          <!-- 尾迹粒子 -->
+          <div class="comet-particle p1"></div>
+          <div class="comet-particle p2"></div>
+          <div class="comet-particle p3"></div>
+          <div class="comet-particle p4"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -43,7 +48,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
   const startFlow = () => {
     glowDot.classList.add('hidden');
-    shouye.playbackRate = 1.25;
+    shouye.playbackRate = 1.5;
     shouye.play().catch(() => {
       // 播放失败，直接跳转阶段2
       shouye.classList.remove('active');
@@ -102,8 +107,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     pointer-events: auto;
   }
 
-  /* ===== 中心闪光点 ===== */
-  .glow-dot-wrapper {
+  /* ===== 彗星播放按钮 ===== */
+  .comet-wrapper {
     position: absolute;
     inset: 0;
     display: flex;
@@ -114,90 +119,164 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     transition: opacity 0.5s ease;
   }
 
-  .glow-dot-wrapper.hidden {
+  .comet-wrapper.hidden {
     opacity: 0;
     pointer-events: none;
   }
 
-  .glow-dot {
-    position: relative;
-    width: 80px;
-    height: 80px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  /* 椭圆轨道容器 */
+  .comet-orbit {
+    width: 180px;
+    height: 180px;
+    animation: orbit-spin 3s linear infinite;
   }
 
-  /* 核心亮点 */
-  .glow-core {
-    width: 12px;
-    height: 12px;
+  /* 彗星本体（挂在旋转容器内） */
+  .comet {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+  }
+
+  /* 彗核：明亮的光点 */
+  .comet-head {
+    position: absolute;
+    width: 9px;
+    height: 9px;
     background: #fff;
     border-radius: 50%;
-    z-index: 3;
+    transform: translate(-50%, -50%);
     box-shadow:
-      0 0 10px #fff,
-      0 0 30px rgba(255,255,255,0.9),
-      0 0 60px rgba(240,132,108,0.7),
-      0 0 100px rgba(240,132,108,0.4);
-    animation: pulse-core 1.8s ease-in-out infinite;
+      0 0 6px #fff,
+      0 0 16px rgba(255,255,255,0.95),
+      0 0 35px rgba(255,200,150,0.8),
+      0 0 60px rgba(240,132,108,0.5);
   }
 
-  @keyframes pulse-core {
-    0%, 100% { transform: scale(1); opacity: 1; }
-    50% { transform: scale(1.6); opacity: 0.6; }
+  /* 彗尾：渐变拖尾 */
+  .comet-tail {
+    position: absolute;
+    top: 0;
+    left: -90px;
+    width: 80px;
+    height: 2px;
+    background: linear-gradient(to left,
+      rgba(255,255,255,0.9) 0%,
+      rgba(255,220,180,0.6) 25%,
+      rgba(240,132,108,0.25) 60%,
+      transparent 100%);
+    border-radius: 1px;
+    transform: translateY(-50%);
   }
 
-  /* 扩散光环 */
-  .glow-ring {
+  /* 尾迹粒子 */
+  .comet-particle {
     position: absolute;
     border-radius: 50%;
-    border: 1.5px solid rgba(255,255,255,0.5);
-    animation: ring-expand 2.4s ease-out infinite;
+    background: #fff;
+    animation: particle-fade 2.2s ease-out infinite;
   }
 
-  .ring-1 { animation-delay: 0s; }
-  .ring-2 { animation-delay: 0.8s; }
-  .ring-3 { animation-delay: 1.6s; }
+  .comet-particle.p1 {
+    width: 4px;
+    height: 4px;
+    left: -30px;
+    top: -3px;
+    animation-delay: 0s;
+    box-shadow: 0 0 6px rgba(255,200,150,0.7);
+  }
 
-  @keyframes ring-expand {
+  .comet-particle.p2 {
+    width: 3px;
+    height: 3px;
+    left: -50px;
+    top: 4px;
+    animation-delay: 0.5s;
+    box-shadow: 0 0 4px rgba(255,180,130,0.6);
+  }
+
+  .comet-particle.p3 {
+    width: 2.5px;
+    height: 2.5px;
+    left: -65px;
+    top: -2px;
+    animation-delay: 1.0s;
+    box-shadow: 0 0 3px rgba(240,132,108,0.5);
+  }
+
+  .comet-particle.p4 {
+    width: 2px;
+    height: 2px;
+    left: -78px;
+    top: 1px;
+    animation-delay: 1.6s;
+    box-shadow: 0 0 2px rgba(240,132,108,0.35);
+  }
+
+  /* 粒子闪烁消散 */
+  @keyframes particle-fade {
     0% {
-      width: 12px;
-      height: 12px;
-      opacity: 0.9;
+      opacity: 0;
+      transform: scale(0.3);
+    }
+    20% {
+      opacity: 1;
+      transform: scale(1);
     }
     100% {
-      width: 90px;
-      height: 90px;
       opacity: 0;
+      transform: scale(0.1);
     }
   }
 
-  /* 悬停增强 */
-  .glow-dot-wrapper:hover .glow-core {
-    box-shadow:
-      0 0 14px #fff,
-      0 0 40px rgba(255,255,255,1),
-      0 0 80px rgba(240,132,108,0.9),
-      0 0 130px rgba(240,132,108,0.6);
+  /* 椭圆轨道旋转 */
+  @keyframes orbit-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
   }
 
-  .glow-dot-wrapper:hover .glow-ring {
-    border-color: rgba(255,255,255,0.8);
+  /* 悬停加速 */
+  .comet-wrapper:hover .comet-orbit {
+    animation-duration: 1.2s;
+  }
+
+  .comet-wrapper:hover .comet-head {
+    box-shadow:
+      0 0 10px #fff,
+      0 0 24px rgba(255,255,255,1),
+      0 0 50px rgba(255,200,150,0.95),
+      0 0 80px rgba(240,132,108,0.7);
+  }
+
+  .comet-wrapper:hover .comet-tail {
+    background: linear-gradient(to left,
+      rgba(255,255,255,1) 0%,
+      rgba(255,220,180,0.8) 30%,
+      rgba(240,132,108,0.4) 65%,
+      transparent 100%);
   }
 
   @media (max-width: 480px) {
-    .glow-dot {
-      width: 60px;
-      height: 60px;
+    .comet-orbit {
+      width: 130px;
+      height: 130px;
     }
-    .glow-core {
-      width: 10px;
-      height: 10px;
+
+    .comet-head {
+      width: 7px;
+      height: 7px;
     }
-    @keyframes ring-expand {
-      0% { width: 10px; height: 10px; opacity: 0.9; }
-      100% { width: 70px; height: 70px; opacity: 0; }
+
+    .comet-tail {
+      width: 55px;
+      left: -60px;
     }
+
+    .comet-particle.p1 { left: -22px; }
+    .comet-particle.p2 { left: -35px; }
+    .comet-particle.p3 { left: -45px; }
+    .comet-particle.p4 { left: -52px; }
   }
 </style>
