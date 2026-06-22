@@ -26,16 +26,6 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
     <!-- 《你的名字》蒂亚马特彗星 -->
     <div class="comet-wrapper" id="glow-dot">
-      <!-- 交叉小彗星 1（白粉色，与主彗星交叉） -->
-      <div class="cross-comet cross-1">
-        <div class="mini-head"></div>
-        <div class="mini-tail"></div>
-      </div>
-      <!-- 交叉小彗星 2（白粉色，与主彗星交叉） -->
-      <div class="cross-comet cross-2">
-        <div class="mini-head"></div>
-        <div class="mini-tail"></div>
-      </div>
       <!-- 主体彗星（天蓝色） -->
       <div class="tiamat-comet">
         <!-- 彗核 -->
@@ -152,72 +142,6 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   .comet-wrapper.hidden {
     opacity: 0;
     pointer-events: none;
-  }
-
-  /* ====== 交叉小彗星（白粉色） ====== */
-  .cross-comet {
-    position: absolute;
-    top: 50%; left: 50%;
-    display: flex;
-    align-items: center;
-    pointer-events: none;
-    animation: cross-drift 5s ease-in-out infinite alternate;
-  }
-
-  /* 与主彗星 145° 交叉：一条 215°（镜像），一条 65°（垂直方向） */
-  .cross-1 {
-    transform: translate(-50%, -50%) rotate(215deg);
-  }
-  .cross-2 {
-    transform: translate(-50%, -50%) rotate(65deg);
-    animation-duration: 6s;
-    animation-delay: -2s;
-  }
-
-  @keyframes cross-drift {
-    0%   { opacity: 0.55; }
-    100% { opacity: 1; }
-  }
-
-  .mini-head {
-    width: 10px;
-    height: 10px;
-    background: #fff;
-    border-radius: 50%;
-    box-shadow:
-      0 0 6px #fff,
-      0 0 14px #fff,
-      0 0 26px #ffb8c6,
-      0 0 38px #ff9ab5,
-      0 0 52px #ff7f9c;
-    flex-shrink: 0;
-    animation: mini-twinkle 1.5s ease-in-out infinite;
-  }
-
-  @keyframes mini-twinkle {
-    0%, 100% { opacity: 0.7; transform: scale(0.9); }
-    50% { opacity: 1; transform: scale(1.25); }
-  }
-
-  .mini-tail {
-    width: 100px;
-    height: 4px;
-    background: linear-gradient(to right,
-      rgba(255,255,255,0.95) 0%,
-      rgba(255,210,220,0.7) 12%,
-      rgba(255,180,195,0.45) 30%,
-      rgba(255,160,180,0.18) 55%,
-      transparent 100%);
-    border-radius: 2px;
-    flex-shrink: 0;
-  }
-
-  /* 悬停时交叉小彗星更亮 */
-  .comet-wrapper:hover .cross-comet {
-    animation-duration: 2.5s;
-  }
-  .comet-wrapper:hover .cross-2 {
-    animation-duration: 3s;
   }
 
   /* ====== 主彗星，自右上至左下倾斜 ====== */
@@ -443,15 +367,6 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
   /* ====== 响应式 ====== */
   @media (max-width: 480px) {
-    .mini-head {
-      width: 7px; height: 7px;
-    }
-
-    .mini-tail {
-      width: 60px;
-      height: 2.5px;
-    }
-
     .tiamat-comet {
       width: 210px;
       height: 85px;
