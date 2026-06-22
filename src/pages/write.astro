@@ -426,7 +426,8 @@ const sorted = sortByDate(diaries);
         throw new Error(res.status + ': ' + err.substring(0, 100));
       }
 
-      toast('已发布！页面即时可见，服务器部署中...', 'success');
+      addPendingDiary(data);
+	      toast('已发布！页面即时可见，服务器部署中...', 'success');
       document.getElementById('field-body').value = '';
       document.getElementById('field-title').value = '';
 
