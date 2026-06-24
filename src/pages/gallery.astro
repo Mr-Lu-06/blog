@@ -28,7 +28,12 @@ const sorted = sortByDate(galleries);
         <input type="date" id="field-date" class="field" />
         <input type="text" id="field-cover" class="field" placeholder="封面图片 URL（可选）" />
       </div>
-      <textarea id="field-photos" class="field field-area" placeholder="照片列表，每行一张图片 URL，描述用 | 分隔&#10;例如：&#10;https://xxx.jpg | 湖边的风景&#10;https://yyy.jpg | 阳光穿过树叶" rows="6"></textarea>
+      <label class="upload-area" id="upload-area">
+        <input type="file" id="field-files" accept="image/*" multiple style="display:none;" />
+        <span id="upload-hint">点击选择本地照片（可多选）</span>
+      </label>
+      <div id="file-preview"></div>
+      <textarea id="field-photos" class="field field-area" placeholder="或手动输入 URL，每行一张&#10;https://xxx.jpg | 描述" rows="4" style="display:none;"></textarea>
       <div class="form-actions">
         <button class="t-btn primary" id="btn-publish">保存</button>
         <button class="t-btn" id="btn-cancel-form">取消</button>
@@ -116,7 +121,19 @@ const sorted = sortByDate(galleries);
     box-sizing: border-box;
   }
   .field:focus { border-color: var(--accent); }
-  .field-area { resize: vertical; min-height: 120px; }
+  .field-area { resize: vertical; min-height: 80px; }
+  .upload-area {
+    display: flex; align-items: center; justify-content: center;
+    padding: 28px; border: 2px dashed var(--border-color); border-radius: 10px;
+    cursor: pointer; transition: all 0.2s; color: var(--text-muted);
+    font-size: 0.9rem; margin-bottom: 10px; min-height: 60px;
+  }
+  .upload-area:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+  #file-preview { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+  #file-preview .thumb {
+    width: 60px; height: 60px; object-fit: cover; border-radius: 6px;
+    border: 1px solid var(--border-color);
+  }
   .row { display: flex; gap: 10px; }
   .row .field { flex: 1; }
   .form-actions { display: flex; gap: 10px; margin-top: 4px; }
@@ -189,6 +206,44 @@ const sorted = sortByDate(galleries);
     document.getElementById('form-card').style.display = 'none';
   });
 
+  // 本地文件选择 → 转 base64 data URL
+  var selectedFiles = [];
+  document.getElementById('field-files').addEventListener('change', function(e) {
+    var files = Array.from(e.target.files);
+    if (!files.length) return;
+    selectedFiles = [];
+    var preview = document.getElementById('file-preview');
+    preview.innerHTML = '';
+    var hint = document.getElementById('upload-hint');
+    var loaded = 0;
+
+    files.forEach(function(file) {
+      var reader = new FileReader();
+      reader.onload = function(ev) {
+        var dataUrl = ev.target.result;
+        selectedFiles.push({ url: dataUrl, caption: file.name });
+        // 缩略图预览
+        var img = document.createElement('img');
+        img.className = 'thumb';
+        img.src = dataUrl;
+        preview.appendChild(img);
+        loaded++;
+        hint.textContent = '已选 ' + loaded + ' 张照片';
+      };
+      reader.readAsDataURL(file);
+    });
+  });
+
+  // 新建时重置文件选择
+  var origNew = document.getElementById('btn-new').onclick;
+  document.getElementById('btn-new').addEventListener('click', function() {
+    selectedFiles = [];
+    document.getElementById('file-preview').innerHTML = '';
+    document.getElementById('upload-hint').textContent = '点击选择本地照片（可多选）';
+    document.getElementById('field-files').value = '';
+    document.getElementById('field-photos').value = '';
+  });
+
   // 保存（完全复制写日记页的 publish 逻辑）
   document.getElementById('btn-publish').addEventListener('click', async function() {
     var token = getToken();
@@ -197,17 +252,20 @@ const sorted = sortByDate(galleries);
     var title = document.getElementById('field-title').value.trim() || '未命名相册';
     var date = document.getElementById('field-date').value || today;
     var cover = document.getElementById('field-cover').value.trim();
-    var photosText = document.getElementById('field-photos').value.trim();
-
-    if (!photosText) return toast('请填写照片 URL', 'error');
-
-    // 解析照片：每行 "url | caption" 或 "url"
-    var photos = photosText.split('\n').map(function(line) {
-      var parts = line.split('|');
-      var photo = { url: (parts[0] || '').trim() };
-      if (parts[1] && parts[1].trim()) photo.caption = parts[1].trim();
-      return photo;
-    }).filter(function(p) { return p.url; });
+    // 优先用本地文件，否则用文本输入
+    var photos;
+    if (selectedFiles.length > 0) {
+      photos = selectedFiles;
+    } else {
+      var photosText = document.getElementById('field-photos').value.trim();
+      if (!photosText) return toast('请选择照片或填写 URL', 'error');
+      photos = photosText.split('\n').map(function(line) {
+        var parts = line.split('|');
+        var photo = { url: (parts[0] || '').trim() };
+        if (parts[1] && parts[1].trim()) photo.caption = parts[1].trim();
+        return photo;
+      }).filter(function(p) { return p.url; });
+    }
 
     if (photos.length === 0) return toast('请填写至少一张照片 URL', 'error');
 
