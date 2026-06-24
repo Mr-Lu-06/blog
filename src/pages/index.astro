@@ -66,28 +66,45 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   const zhuanchang = document.getElementById('video-zhuanchang');
   const glowDot = document.getElementById('glow-dot');
 
+  let isPlaying = false;
+  let isTransitioning = false;
+
+  const skipToTransition = () => {
+    if (isTransitioning) return;
+    isTransitioning = true;
+    shouye.pause();
+    shouye.classList.remove('active');
+    zhuanchang.classList.add('active');
+    zhuanchang.play().catch(() => {
+      document.querySelector('.splash').style.opacity = '0';
+      setTimeout(() => window.location.href = '/diary', 400);
+    });
+  };
+
   const startFlow = () => {
+    if (isPlaying) return;
+    isPlaying = true;
     glowDot.classList.add('hidden');
     shouye.playbackRate = 1.5;
     shouye.play().catch(() => {
       // 播放失败，直接跳转阶段2
-      shouye.classList.remove('active');
-      zhuanchang.classList.add('active');
-      zhuanchang.play().catch(() => {
-        document.querySelector('.splash').style.opacity = '0';
-        setTimeout(() => window.location.href = '/diary', 400);
-      });
+      skipToTransition();
     });
   };
 
-  // 点击闪光点开始
+  // 点击彗星开始播放
   glowDot.addEventListener('click', startFlow);
+
+  // 播放期间点击屏幕任意位置跳过动画
+  document.querySelector('.splash').addEventListener('click', (e) => {
+    if (isPlaying && !isTransitioning) {
+      skipToTransition();
+    }
+  });
 
   // 阶段1 → 阶段2
   shouye.addEventListener('ended', () => {
-    shouye.classList.remove('active');
-    zhuanchang.classList.add('active');
-    zhuanchang.play().catch(() => {});
+    skipToTransition();
   });
 
   // 阶段2 → 跳转
