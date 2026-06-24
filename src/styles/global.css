@@ -4,9 +4,9 @@
 /* ===== CSS Variables: Warm Cute Theme ===== */
 :root {
   /* Warm pastel palette */
-  --bg-primary: #fef9f4;
-  --bg-secondary: #fdf3e8;
-  --bg-card: #ffffff;
+  --bg-primary: #e3f0f9;
+  --bg-secondary: #d6e8f5;
+  --bg-card: rgba(255, 255, 255, 0.85);
   --bg-glass: rgba(255, 255, 255, 0.30);
   --text-primary: #3d2c2c;
   --text-secondary: #8b6f6f;
@@ -52,10 +52,10 @@
 
 /* ===== Dark Theme ===== */
 [data-theme='dark'] {
-  --bg-primary: #1e1814;
-  --bg-secondary: #261e1a;
-  --bg-card: #2d2420;
-  --bg-glass: rgba(45, 36, 32, 0.3);
+  --bg-primary: #1a2430;
+  --bg-secondary: #1e2a38;
+  --bg-card: rgba(30, 40, 55, 0.85);
+  --bg-glass: rgba(30, 40, 55, 0.3);
   --text-primary: #e8dcd4;
   --text-secondary: #b8a498;
   --text-muted: #7a6e66;
@@ -79,7 +79,12 @@
 
   --gradient-warm: linear-gradient(135deg, #f5a08c 0%, #e0a030 100%);
   --gradient-soft: linear-gradient(135deg, #3d2a24 0%, #3d3520 100%);
-  --gradient-card: linear-gradient(180deg, #2d2420 0%, #261e1a 100%);
+  --gradient-card: linear-gradient(180deg, #2d2420 0%, #1e2835 100%);
+}
+
+[data-theme='dark'] body {
+  background-color: #1a2430;
+  background-attachment: fixed;
 }
 
 /* ===== Reset ===== */
@@ -98,14 +103,11 @@ html {
 
 body {
   font-family: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', -apple-system, sans-serif;
-  background-color: var(--bg-primary);
+  background-color: #e3f0f9;
+  background-attachment: fixed;
   color: var(--text-primary);
   line-height: 1.75;
-  transition: background-color 0.4s ease, color 0.4s ease;
-  background-image:
-    radial-gradient(ellipse at 20% 0%, rgba(240, 132, 108, 0.04) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 100%, rgba(245, 182, 66, 0.04) 0%, transparent 50%);
-  background-attachment: fixed;
+  transition: color 0.4s ease;
   /* 中文排版优化 */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
