@@ -263,35 +263,83 @@ const sorted = sortByDate(galleries);
     document.getElementById('edit-panel').scrollIntoView({ behavior: 'smooth' });
   });
 
-  // ===== 编辑（事件委托） =====
+  // ===== 编辑 + 删除（事件委托，合并到一个监听器） =====
   const galleryList = document.getElementById('gallery-list');
   if (galleryList) {
     galleryList.addEventListener('click', (e) => {
-      const btn = e.target.closest('.btn-edit');
-      if (!btn) return;
-      const slug = btn.dataset.slug;
-      const section = document.querySelector(`.gallery-section[data-slug="${slug}"]`);
-      if (!section) return toast('找不到该相册', 'error');
-      const title = section.querySelector('h2')?.textContent || '';
-      const timeEl = section.querySelector('time');
-      const dateStr = timeEl?.getAttribute('datetime') || '';
-      const dateVal = dateStr ? dateStr.split('T')[0] : today;
+      // 编辑
+      const editBtn = e.target.closest('.btn-edit');
+      if (editBtn) {
+        const slug = editBtn.dataset.slug;
+        const section = document.querySelector(`.gallery-section[data-slug="${slug}"]`);
+        if (!section) return toast('找不到该相册', 'error');
+        const title = section.querySelector('h2')?.textContent || '';
+        const timeEl = section.querySelector('time');
+        const dateStr = timeEl?.getAttribute('datetime') || '';
+        const dateVal = dateStr ? dateStr.split('T')[0] : today;
 
-      const imgEls = section.querySelectorAll('img');
-      const photos = Array.from(imgEls).map(img => ({
-        url: img.src || img.getAttribute('data-src') || '',
-        caption: img.alt || '',
-      }));
+        const imgEls = section.querySelectorAll('img');
+        const photos = Array.from(imgEls).map(img => ({
+          url: img.src || img.getAttribute('data-src') || '',
+          caption: img.alt || '',
+        }));
 
-      document.getElementById('edit-slug').value = slug;
-      document.getElementById('edit-title-text').textContent = '编辑相册';
-      document.getElementById('edit-album-title').value = title;
-      document.getElementById('edit-album-date').value = dateVal;
-      document.getElementById('edit-album-cover').value = '';
-      renderPhotoList(photos.length > 0 ? photos : [{url:'',caption:''}]);
-      document.getElementById('edit-panel').style.display = 'block';
-      document.getElementById('edit-panel').scrollIntoView({ behavior: 'smooth' });
+        document.getElementById('edit-slug').value = slug;
+        document.getElementById('edit-title-text').textContent = '编辑相册';
+        document.getElementById('edit-album-title').value = title;
+        document.getElementById('edit-album-date').value = dateVal;
+        document.getElementById('edit-album-cover').value = '';
+        renderPhotoList(photos.length > 0 ? photos : [{url:'',caption:''}]);
+        document.getElementById('edit-panel').style.display = 'block';
+        document.getElementById('edit-panel').scrollIntoView({ behavior: 'smooth' });
+        return;
+      }
+
+      // 删除
+      const delBtn = e.target.closest('.btn-del');
+      if (delBtn) {
+        handleDelete(delBtn.dataset.slug);
+        return;
+      }
     });
+  }
+
+  async function handleDelete(slug) {
+    if (!confirm('确定要删除这个相册吗？')) return;
+    const token = getToken();
+    if (!token) return toast('请先填写 GitHub Token', 'error');
+
+    const filepath = FILE_PREFIX + slug + '.md';
+    toast('正在删除...', 'loading');
+
+    try {
+      const infoRes = await fetch('https://api.github.com/repos/' + REPO + '/contents/' + filepath, {
+        headers: { Authorization: 'Bearer ' + token, Accept: 'application/vnd.github.v3+json' }
+      });
+      if (infoRes.status === 404) return toast('文件不存在', 'error');
+      if (!infoRes.ok) throw new Error('获取失败 ' + infoRes.status);
+      const info = await infoRes.json();
+
+      const delRes = await fetch('https://api.github.com/repos/' + REPO + '/contents/' + filepath, {
+        method: 'DELETE',
+        headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json', Accept: 'application/vnd.github.v3+json' },
+        body: JSON.stringify({ message: '删除相册: ' + slug, sha: info.sha, branch: BRANCH }),
+      });
+      if (!delRes.ok) {
+        const errText = await delRes.text();
+        throw new Error('删除失败 ' + delRes.status + ': ' + errText.substring(0, 100));
+      }
+
+      toast('已删除！部署中...', 'success');
+      const section = document.querySelector(`.gallery-section[data-slug="${slug}"]`);
+      if (section) section.remove();
+      if (!document.querySelector('.gallery-section')) {
+        const empty = document.getElementById('empty-state');
+        if (empty) empty.style.display = 'block';
+      }
+    } catch(e) {
+      toast('删除失败: ' + e.message, 'error');
+    }
   }
 
   // ===== 取消 =====
@@ -394,48 +442,4 @@ const sorted = sortByDate(galleries);
     }
   });
 
-  // ===== 删除（事件委托） =====
-  if (galleryList) {
-    galleryList.addEventListener('click', async (e) => {
-      const btn = e.target.closest('.btn-del');
-      if (!btn) return;
-      const slug = btn.dataset.slug;
-      if (!confirm('确定要删除这个相册吗？')) return;
-
-      const token = getToken();
-      if (!token) return toast('请先填写 GitHub Token', 'error');
-
-      const filepath = FILE_PREFIX + slug + '.md';
-      toast('正在删除...', 'loading');
-
-      try {
-        const infoRes = await fetch('https://api.github.com/repos/' + REPO + '/contents/' + filepath, {
-          headers: { Authorization: 'Bearer ' + token, Accept: 'application/vnd.github.v3+json' }
-        });
-        if (infoRes.status === 404) return toast('文件不存在', 'error');
-        if (!infoRes.ok) throw new Error('获取失败 ' + infoRes.status);
-        const info = await infoRes.json();
-
-        const delRes = await fetch('https://api.github.com/repos/' + REPO + '/contents/' + filepath, {
-          method: 'DELETE',
-          headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json', Accept: 'application/vnd.github.v3+json' },
-          body: JSON.stringify({ message: '删除相册: ' + slug, sha: info.sha, branch: BRANCH }),
-        });
-        if (!delRes.ok) {
-          const errText = await delRes.text();
-          throw new Error('删除失败 ' + delRes.status + ': ' + errText.substring(0, 100));
-        }
-
-        toast('已删除！部署中...', 'success');
-        const section = document.querySelector(`.gallery-section[data-slug="${slug}"]`);
-        if (section) section.remove();
-        if (!document.querySelector('.gallery-section')) {
-          const empty = document.getElementById('empty-state');
-          if (empty) empty.style.display = 'block';
-        }
-      } catch(e) {
-        toast('删除失败: ' + e.message, 'error');
-      }
-    });
-  }
 </script>
