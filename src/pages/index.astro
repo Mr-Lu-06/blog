@@ -87,7 +87,6 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     glowDot.classList.add('hidden');
     shouye.playbackRate = 1.5;
     shouye.play().catch(() => {
-      // 播放失败，直接跳转阶段2
       skipToTransition();
     });
   };
@@ -95,7 +94,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   // 点击彗星开始播放
   glowDot.addEventListener('click', startFlow);
 
-  // 播放期间点击屏幕任意位置跳过动画
+  // 播放期间点击屏幕任意位置跳过
   document.querySelector('.splash').addEventListener('click', (e) => {
     if (isPlaying && !isTransitioning) {
       skipToTransition();
