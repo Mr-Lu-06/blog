@@ -1,5 +1,5 @@
 /* ===== Google Fonts (if available) ===== */
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&family=Noto+Serif+SC:wght@400;600;700;900&family=Fira+Code:wght@400;500&display=swap');
 
 /* ===== CSS Variables: Warm Cute Theme ===== */
 :root {
@@ -102,7 +102,7 @@ html {
 }
 
 body {
-  font-family: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', -apple-system, sans-serif;
+  font-family: 'Noto Sans SC', sans-serif;
   background-color: #faf8f4;
   background-attachment: fixed;
   color: var(--text-primary);
@@ -142,6 +142,11 @@ img {
   border-radius: var(--radius-sm);
 }
 
+/* ===== Headings ===== */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Noto Serif SC', 'Noto Sans SC', serif;
+}
+
 /* ===== Container ===== */
 .container {
   max-width: 1140px;
@@ -172,7 +177,7 @@ img {
 .markdown-body p { margin: 0.8em 0; }
 .markdown-body ul, .markdown-body ol { padding-left: 1.5em; margin: 0.6em 0; }
 .markdown-body li { margin: 0.3em 0; }
-.markdown-body code { background: var(--bg-secondary); padding: 0.15em 0.5em; border-radius: 6px; font-size: 0.9em; font-family: 'Fira Code', 'Cascadia Code', Consolas, monospace; }
+.markdown-body code { background: var(--bg-secondary); padding: 0.15em 0.5em; border-radius: 6px; font-size: 0.9em; font-family: 'Fira Code', monospace; }
 .markdown-body pre { background: var(--bg-secondary); padding: 1.2em; border-radius: var(--radius-sm); overflow-x: auto; margin: 1em 0; border: 1px solid var(--border-color); }
 .markdown-body pre code { background: none; padding: 0; }
 .markdown-body blockquote { border-left: 3px solid var(--accent); padding: 0.6em 1.2em; margin: 1em 0; background: var(--accent-light); border-radius: 0 var(--radius-xs) var(--radius-xs) 0; color: var(--text-secondary); }
