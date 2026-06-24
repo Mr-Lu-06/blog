@@ -68,6 +68,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
   let isPlaying = false;
   let isTransitioning = false;
+  let playStartTime = 0;
 
   const skipToTransition = () => {
     if (isTransitioning) return;
@@ -84,6 +85,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   const startFlow = () => {
     if (isPlaying) return;
     isPlaying = true;
+    playStartTime = Date.now();
     glowDot.classList.add('hidden');
     shouye.playbackRate = 1.5;
     shouye.play().catch(() => {
@@ -91,12 +93,15 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     });
   };
 
-  // 点击彗星开始播放
-  glowDot.addEventListener('click', startFlow);
+  // 点击彗星开始播放（阻止冒泡防止立即跳过）
+  glowDot.addEventListener('click', (e) => {
+    e.stopPropagation();
+    startFlow();
+  });
 
-  // 播放期间点击屏幕任意位置跳过
-  document.querySelector('.splash').addEventListener('click', (e) => {
-    if (isPlaying && !isTransitioning) {
+  // 播放至少 300ms 后点击屏幕任意位置跳过
+  document.querySelector('.splash').addEventListener('click', () => {
+    if (isPlaying && !isTransitioning && Date.now() - playStartTime > 300) {
       skipToTransition();
     }
   });
