@@ -33,7 +33,7 @@ const sorted = sortByDate(galleries);
         <span id="upload-hint">点击选择本地照片（可多选）</span>
       </label>
       <div id="file-preview"></div>
-      <textarea id="field-photos" class="field field-area" placeholder="或手动输入 URL，每行一张&#10;https://xxx.jpg | 描述" rows="4" style="display:none;"></textarea>
+      <textarea id="field-photos" class="field field-area" placeholder="或手动输入 URL，每行一张&#10;https://xxx.jpg | 描述" rows="4"></textarea>
       <div class="form-actions">
         <button class="t-btn primary" id="btn-publish">保存</button>
         <button class="t-btn" id="btn-cancel-form">取消</button>
@@ -206,36 +206,25 @@ const sorted = sortByDate(galleries);
     document.getElementById('form-card').style.display = 'none';
   });
 
-  // 本地文件选择 → 转 base64 data URL
+  // 本地文件选择 → 存 File 对象 + 预览
   var selectedFiles = [];
   document.getElementById('field-files').addEventListener('change', function(e) {
     var files = Array.from(e.target.files);
     if (!files.length) return;
-    selectedFiles = [];
+    selectedFiles = files;
     var preview = document.getElementById('file-preview');
     preview.innerHTML = '';
     var hint = document.getElementById('upload-hint');
-    var loaded = 0;
-
     files.forEach(function(file) {
-      var reader = new FileReader();
-      reader.onload = function(ev) {
-        var dataUrl = ev.target.result;
-        selectedFiles.push({ url: dataUrl, caption: file.name });
-        // 缩略图预览
-        var img = document.createElement('img');
-        img.className = 'thumb';
-        img.src = dataUrl;
-        preview.appendChild(img);
-        loaded++;
-        hint.textContent = '已选 ' + loaded + ' 张照片';
-      };
-      reader.readAsDataURL(file);
+      var img = document.createElement('img');
+      img.className = 'thumb';
+      img.src = URL.createObjectURL(file);
+      preview.appendChild(img);
     });
+    hint.textContent = '已选 ' + files.length + ' 张照片';
   });
 
-  // 新建时重置文件选择
-  var origNew = document.getElementById('btn-new').onclick;
+  // 新建时重置
   document.getElementById('btn-new').addEventListener('click', function() {
     selectedFiles = [];
     document.getElementById('file-preview').innerHTML = '';
@@ -244,7 +233,16 @@ const sorted = sortByDate(galleries);
     document.getElementById('field-photos').value = '';
   });
 
-  // 保存（完全复制写日记页的 publish 逻辑）
+  // base64 编码辅助
+  function fileToBase64(file) {
+    return new Promise(function(resolve) {
+      var reader = new FileReader();
+      reader.onload = function() { resolve(reader.result); };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  // 保存
   document.getElementById('btn-publish').addEventListener('click', async function() {
     var token = getToken();
     if (!token) return toast('请先填写 GitHub Token', 'error');
@@ -252,22 +250,60 @@ const sorted = sortByDate(galleries);
     var title = document.getElementById('field-title').value.trim() || '未命名相册';
     var date = document.getElementById('field-date').value || today;
     var cover = document.getElementById('field-cover').value.trim();
-    // 优先用本地文件，否则用文本输入
-    var photos;
+
+    // 确定 slug
+    var slug = date + '-' + title.replace(/[^一-龥a-zA-Z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '').substring(0, 40);
+
+    // 获取照片数据
+    var photos = [];
+    var photosText = document.getElementById('field-photos').value.trim();
+
     if (selectedFiles.length > 0) {
-      photos = selectedFiles;
-    } else {
-      var photosText = document.getElementById('field-photos').value.trim();
-      if (!photosText) return toast('请选择照片或填写 URL', 'error');
+      // 先上传本地文件到 public/gallery/
+      toast('正在上传图片...', 'loading');
+      try {
+        for (var i = 0; i < selectedFiles.length; i++) {
+          var file = selectedFiles[i];
+          var ext = file.name.split('.').pop().toLowerCase();
+          if (ext === 'jpeg') ext = 'jpg';
+          var imgName = slug + '_' + (i + 1) + '.' + ext;
+          var imgPath = 'public/gallery/' + imgName;
+
+          var base64 = await fileToBase64(file);
+          // 去掉 data:image/xxx;base64, 前缀
+          var raw = base64.split(',')[1];
+
+          var imgPayload = {
+            message: '上传图片: ' + imgName,
+            content: raw,
+            branch: BRANCH,
+          };
+
+          var imgRes = await fetch('https://api.github.com/repos/' + REPO + '/contents/' + imgPath, {
+            method: 'PUT',
+            headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json', Accept: 'application/vnd.github.v3+json' },
+            body: JSON.stringify(imgPayload),
+          });
+          if (!imgRes.ok) throw new Error('图片上传失败: ' + imgRes.status);
+
+          photos.push({ url: '/gallery/' + imgName, caption: file.name });
+        }
+      } catch(e) {
+        toast('图片上传失败: ' + e.message, 'error');
+        return;
+      }
+    } else if (photosText) {
       photos = photosText.split('\n').map(function(line) {
         var parts = line.split('|');
         var photo = { url: (parts[0] || '').trim() };
         if (parts[1] && parts[1].trim()) photo.caption = parts[1].trim();
         return photo;
       }).filter(function(p) { return p.url; });
+    } else {
+      return toast('请选择照片或填写 URL', 'error');
     }
 
-    if (photos.length === 0) return toast('请填写至少一张照片 URL', 'error');
+    if (photos.length === 0) return toast('请填写至少一张照片', 'error');
 
     // 构建 YAML
     var yaml = '---\ntitle: "' + title.replace(/"/g, '\\"') + '"\ndate: ' + date + '\nphotos:\n';
@@ -278,10 +314,7 @@ const sorted = sortByDate(galleries);
     if (cover) yaml += 'cover: "' + cover.replace(/"/g, '\\"') + '"\n';
     yaml += '---\n';
 
-    var slug = date + '-' + title.replace(/[^一-龥a-zA-Z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '').substring(0, 40);
     var filepath = 'src/content/gallery/' + slug + '.md';
-    var fullContent = yaml;
-
     toast('正在保存...', 'loading');
 
     try {
@@ -295,7 +328,7 @@ const sorted = sortByDate(galleries);
 
       var payload = {
         message: '相册: ' + title,
-        content: btoa(unescape(encodeURIComponent(fullContent))),
+        content: btoa(unescape(encodeURIComponent(yaml))),
         branch: BRANCH,
       };
       if (sha) payload.sha = sha;
