@@ -4,8 +4,8 @@
 /* ===== CSS Variables: Warm Cute Theme ===== */
 :root {
   /* Warm pastel palette */
-  --bg-primary: #e3f0f9;
-  --bg-secondary: #d6e8f5;
+  --bg-primary: #faf8f4;
+  --bg-secondary: #f3f0ea;
   --bg-card: rgba(255, 255, 255, 0.85);
   --bg-glass: rgba(255, 255, 255, 0.30);
   --text-primary: #3d2c2c;
@@ -52,8 +52,8 @@
 
 /* ===== Dark Theme ===== */
 [data-theme='dark'] {
-  --bg-primary: #1a2430;
-  --bg-secondary: #1e2a38;
+  --bg-primary: #1e1e1e;
+  --bg-secondary: #282828;
   --bg-card: rgba(30, 40, 55, 0.85);
   --bg-glass: rgba(30, 40, 55, 0.3);
   --text-primary: #e8dcd4;
@@ -83,7 +83,7 @@
 }
 
 [data-theme='dark'] body {
-  background-color: #1a2430;
+  background-color: #1e1e1e;
   background-attachment: fixed;
 }
 
@@ -103,7 +103,7 @@ html {
 
 body {
   font-family: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', -apple-system, sans-serif;
-  background-color: #e3f0f9;
+  background-color: #faf8f4;
   background-attachment: fixed;
   color: var(--text-primary);
   line-height: 1.75;
