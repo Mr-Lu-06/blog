@@ -12,26 +12,60 @@ const sorted = sortByDate(galleries);
 <BaseLayout title="相册" description="记录生活中的美好瞬间">
   <div class="container gallery-page">
     <section class="hero glass">
-      <h1 class="hero-title">相册</h1>
-      <p class="hero-subtitle">用照片记录生活中的美好瞬间</p>
+      <div class="hero-row">
+        <div>
+          <h1 class="hero-title">相册</h1>
+          <p class="hero-subtitle">用照片记录生活中的美好瞬间</p>
+        </div>
+        <button class="btn btn-accent" id="btn-new">+ 新建相册</button>
+      </div>
+      <!-- Token -->
+      <div class="token-bar" id="token-bar">
+        <input type="password" id="token-input" placeholder="GitHub Token" />
+        <button class="btn small" id="btn-save-token">保存</button>
+      </div>
     </section>
 
+    <!-- 新建/编辑表单 -->
+    <div class="edit-panel glass" id="edit-panel" style="display:none;">
+      <h2 id="edit-title-text">新建相册</h2>
+      <input type="hidden" id="edit-slug" />
+      <div class="form-grid">
+        <input type="text" id="edit-album-title" class="field" placeholder="相册名称" />
+        <input type="date" id="edit-album-date" class="field" />
+        <input type="text" id="edit-album-cover" class="field" placeholder="封面图片 URL（可选）" />
+      </div>
+      <h3>照片列表</h3>
+      <div id="photo-list"></div>
+      <button class="btn small" id="btn-add-photo">+ 添加照片</button>
+      <div class="edit-actions">
+        <button class="btn btn-accent" id="btn-save">保存</button>
+        <button class="btn" id="btn-cancel">取消</button>
+      </div>
+    </div>
+
+    <!-- 相册列表 -->
     {sorted.length > 0 ? (
-      <div class="gallery-list">
+      <div class="gallery-list" id="gallery-list">
         {sorted.map((entry) => (
-          <section class="gallery-section glass">
+          <section class="gallery-section glass" data-slug={entry.id}>
             <div class="gallery-section-header">
-              <h2>{entry.data.title}</h2>
-              <time>{formatDate(entry.data.date.toISOString())}</time>
+              <div>
+                <h2>{entry.data.title}</h2>
+                <time>{formatDate(entry.data.date.toISOString())}</time>
+              </div>
+              <div class="gallery-actions">
+                <button class="btn small btn-edit" data-slug={entry.id}>编辑</button>
+                <button class="btn small btn-del" data-slug={entry.id}>删除</button>
+              </div>
             </div>
             <PhotoGrid photos={entry.data.photos || []} />
           </section>
         ))}
       </div>
     ) : (
-      <div class="empty-state">
-        <span class="empty-icon"></span>
-        <p>还没有相册，去后台创建第一个吧！</p>
+      <div class="empty-state" id="empty-state">
+        <p>还没有相册，点击上方按钮创建第一个吧！</p>
       </div>
     )}
   </div>
@@ -40,119 +74,350 @@ const sorted = sortByDate(galleries);
 <Lightbox client:load />
 
 <style>
-  .gallery-page {
-    padding-top: 24px;
-    padding-bottom: 60px;
-  }
+  .gallery-page { padding-top: 24px; padding-bottom: 60px; }
 
   .hero {
-    position: relative;
-    text-align: center;
-    padding: 40px 20px 36px;
+    padding: 28px 28px 16px;
     border-radius: var(--radius-xl);
-    margin-bottom: 32px;
-    overflow: hidden;
+    margin-bottom: 24px;
     transition: all 0.3s ease;
   }
+  .hero:hover { box-shadow: var(--shadow-md); }
 
-  .hero:hover {
-    box-shadow: var(--shadow-md);
+  .hero-row {
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 12px; margin-bottom: 14px;
   }
+  .hero-title { font-size: 1.8rem; font-weight: 900; margin: 0; }
+  .hero-subtitle { color: var(--text-secondary); margin: 0; font-size: 0.95rem; }
 
-  .hero-title {
-    font-size: 2.2rem;
-    font-weight: 900;
-    margin-bottom: 8px;
-    position: relative;
-    z-index: 1;
+  .token-bar {
+    display: flex; gap: 8px; align-items: center;
+    padding: 8px 12px; background: var(--bg-secondary);
+    border-radius: 8px; flex-wrap: wrap;
   }
-
-  .hero-subtitle {
-    font-size: 1.05rem;
-    color: var(--text-secondary);
-    margin: 0;
-    position: relative;
-    z-index: 1;
+  .token-bar input {
+    flex: 1; min-width: 150px; padding: 6px 10px;
+    border: 1px solid var(--border-color); border-radius: 6px;
+    background: var(--bg-card); color: var(--text-primary);
+    font-size: 0.82rem; font-family: inherit; outline: none;
   }
+  .token-bar input:focus { border-color: var(--accent); }
 
-  .hero-decoration {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    z-index: 0;
+  .btn {
+    padding: 8px 18px; border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-card); color: var(--text-primary);
+    font-size: 0.88rem; cursor: pointer; font-family: inherit;
+    transition: all 0.2s; white-space: nowrap;
   }
+  .btn:hover { border-color: var(--accent); color: var(--accent); }
+  .btn.small { padding: 5px 12px; font-size: 0.8rem; }
+  .btn-accent { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .btn-accent:hover { background: var(--accent-hover); color: #fff; }
+  .btn-edit:hover { color: #1976d2; border-color: #1976d2; }
+  .btn-del:hover { color: #d32f2f; border-color: #d32f2f; }
 
-  .deco {
-    position: absolute;
-    font-size: 1.8rem;
-    opacity: 0.25;
-    animation: float 6s ease-in-out infinite;
+  /* 编辑面板 */
+  .edit-panel {
+    border-radius: var(--radius-lg); padding: 24px; margin-bottom: 24px;
   }
-  .deco-1 { top: 10%; right: 12%; animation-delay: 0s; }
-  .deco-2 { top: 55%; right: 20%; animation-delay: -2s; font-size: 1.2rem; }
-  .deco-3 { top: 25%; right: 5%; animation-delay: -4s; font-size: 1.4rem; }
-
-  @keyframes float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-10px); }
+  .edit-panel h2 { font-size: 1.15rem; margin: 0 0 16px; }
+  .edit-panel h3 { font-size: 0.95rem; margin: 16px 0 8px; }
+  .form-grid { display: flex; gap: 10px; flex-wrap: wrap; }
+  .field {
+    flex: 1; min-width: 160px; padding: 8px 12px;
+    border: 1px solid var(--border-color); border-radius: 8px;
+    background: var(--bg-card); color: var(--text-primary);
+    font-size: 0.88rem; font-family: inherit; outline: none;
   }
-
-  .gallery-list {
-    display: flex;
-    flex-direction: column;
-    gap: 40px;
+  .field:focus { border-color: var(--accent); }
+  .photo-row {
+    display: flex; gap: 8px; align-items: center; margin-bottom: 8px;
   }
-
-  .gallery-section {
-    border-radius: var(--radius-lg);
-    padding: 24px;
-    transition: all 0.3s ease;
+  .photo-row input {
+    flex: 1; padding: 6px 10px; border: 1px solid var(--border-color);
+    border-radius: 6px; background: var(--bg-card); color: var(--text-primary);
+    font-size: 0.85rem; font-family: inherit; outline: none;
   }
-
-  .gallery-section:hover {
-    box-shadow: var(--shadow-md);
+  .photo-row input:focus { border-color: var(--accent); }
+  .photo-row .btn-del-photo {
+    padding: 4px 8px; border: 1px solid transparent; border-radius: 6px;
+    background: transparent; color: var(--text-muted); cursor: pointer; font-size: 1rem;
   }
+  .photo-row .btn-del-photo:hover { color: #d32f2f; }
 
+  .edit-actions { display: flex; gap: 10px; margin-top: 18px; }
+
+  /* 相册列表 */
+  .gallery-list { display: flex; flex-direction: column; gap: 32px; }
+  .gallery-section { border-radius: var(--radius-lg); padding: 22px; transition: all 0.3s ease; }
+  .gallery-section:hover { box-shadow: var(--shadow-md); }
   .gallery-section-header {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 16px;
+    display: flex; align-items: flex-start; justify-content: space-between;
+    flex-wrap: wrap; gap: 10px; margin-bottom: 14px;
   }
+  .gallery-section-header h2 { font-size: 1.15rem; font-weight: 800; margin: 0 0 4px; }
+  .gallery-section-header time { color: var(--text-muted); font-size: 0.82rem; }
+  .gallery-actions { display: flex; gap: 6px; }
 
-  .gallery-section-header h2 {
-    font-size: 1.2rem;
-    font-weight: 800;
-    margin: 0;
-  }
+  .empty-state { text-align: center; padding: 60px 20px; color: var(--text-secondary); }
 
-  .gallery-section-header time {
-    color: var(--text-muted);
-    font-size: 0.85rem;
-    font-weight: 500;
+  #toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+    padding: 10px 24px; border-radius: 8px; font-size: 0.85rem;
+    z-index: 999; display: none; box-shadow: 0 4px 16px rgba(0,0,0,0.1);
   }
-
-  .empty-state {
-    text-align: center;
-    padding: 80px 20px;
-    color: var(--text-secondary);
-  }
-
-  .empty-icon {
-    font-size: 3rem;
-    display: block;
-    margin-bottom: 16px;
-  }
+  #toast.show { display: block; }
+  #toast.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+  #toast.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+  #toast.loading { background: #cce5ff; color: #004085; border: 1px solid #b8daff; }
 
   @media (max-width: 768px) {
-    .hero-title { font-size: 1.8rem; }
-    .gallery-list { gap: 28px; }
-    .gallery-section { padding: 18px; }
-  }
-
-  @media (max-width: 480px) {
     .hero-title { font-size: 1.5rem; }
+    .gallery-list { gap: 24px; }
+    .gallery-section { padding: 16px; }
+    .hero { padding: 20px 18px 12px; }
   }
 </style>
+
+<script>
+  const REPO = 'Mr-Lu-06/blog';
+  const BRANCH = 'main';
+  const FILE_PREFIX = 'src/content/gallery/';
+  const today = new Date().toISOString().split('T')[0];
+
+  // ===== Toast =====
+  const toastEl = document.createElement('div');
+  toastEl.id = 'toast';
+  document.body.appendChild(toastEl);
+  function toast(msg, type) {
+    toastEl.textContent = msg;
+    toastEl.className = type + ' show';
+    clearTimeout(toastEl._t);
+    toastEl._t = setTimeout(() => toastEl.classList.remove('show'), 3000);
+  }
+
+  // ===== Token =====
+  function getToken() {
+    let t = document.getElementById('token-input').value.trim();
+    if (!t) t = localStorage.getItem('write_token');
+    return t;
+  }
+  document.getElementById('btn-save-token').addEventListener('click', () => {
+    const v = document.getElementById('token-input').value.trim();
+    if (!v) return toast('请输入 Token', 'error');
+    localStorage.setItem('write_token', v);
+    toast('Token 已保存', 'success');
+  });
+  // 恢复 token
+  const saved = localStorage.getItem('write_token');
+  if (saved) document.getElementById('token-input').value = saved;
+
+  // ===== Photo list management =====
+  function renderPhotoList(photos) {
+    const container = document.getElementById('photo-list');
+    container.innerHTML = (photos || []).map((p, i) => `
+      <div class="photo-row">
+        <input type="text" class="photo-url" placeholder="图片 URL" value="${p.url || ''}" />
+        <input type="text" class="photo-caption" placeholder="描述（可选）" value="${p.caption || ''}" style="max-width:180px;" />
+        <button class="btn-del-photo" data-idx="${i}" title="删除">×</button>
+      </div>
+    `).join('');
+    // 绑定删除事件
+    container.querySelectorAll('.btn-del-photo').forEach(btn => {
+      btn.addEventListener('click', () => {
+        btn.closest('.photo-row').remove();
+      });
+    });
+  }
+
+  function getPhotoData() {
+    return Array.from(document.querySelectorAll('.photo-row')).map(row => ({
+      url: row.querySelector('.photo-url').value.trim(),
+      caption: row.querySelector('.photo-caption').value.trim(),
+    })).filter(p => p.url);
+  }
+
+  document.getElementById('btn-add-photo').addEventListener('click', () => {
+    const row = document.createElement('div');
+    row.className = 'photo-row';
+    row.innerHTML = `
+      <input type="text" class="photo-url" placeholder="图片 URL" />
+      <input type="text" class="photo-caption" placeholder="描述（可选）" style="max-width:180px;" />
+      <button class="btn-del-photo" title="删除">×</button>
+    `;
+    row.querySelector('.btn-del-photo').addEventListener('click', () => row.remove());
+    document.getElementById('photo-list').appendChild(row);
+  });
+
+  // ===== 新建 =====
+  document.getElementById('btn-new').addEventListener('click', () => {
+    document.getElementById('edit-slug').value = '';
+    document.getElementById('edit-title-text').textContent = '新建相册';
+    document.getElementById('edit-album-title').value = '';
+    document.getElementById('edit-album-date').value = today;
+    document.getElementById('edit-album-cover').value = '';
+    renderPhotoList([{url:'',caption:''}]);
+    document.getElementById('edit-panel').style.display = 'block';
+    document.getElementById('edit-panel').scrollIntoView({ behavior: 'smooth' });
+  });
+
+  // ===== 编辑（事件委托） =====
+  document.getElementById('gallery-list').addEventListener('click', (e) => {
+    const btn = e.target.closest('.btn-edit');
+    if (!btn) return;
+    const slug = btn.dataset.slug;
+    const section = document.querySelector(`.gallery-section[data-slug="${slug}"]`);
+    const title = section.querySelector('h2').textContent;
+    const timeEl = section.querySelector('time');
+    // 从 time 元素的 datetime 或文本提取日期
+    const dateStr = timeEl.getAttribute('datetime') || '';
+    const dateVal = dateStr ? dateStr.split('T')[0] : today;
+
+    // 获取当前 photo 数据（从 PhotoGrid 渲染的 DOM 中提取）
+    const imgEls = section.querySelectorAll('img');
+    const photos = Array.from(imgEls).map(img => ({
+      url: img.src || img.getAttribute('data-src') || '',
+      caption: img.alt || '',
+    }));
+
+    document.getElementById('edit-slug').value = slug;
+    document.getElementById('edit-title-text').textContent = '编辑相册';
+    document.getElementById('edit-album-title').value = title;
+    document.getElementById('edit-album-date').value = dateVal;
+    document.getElementById('edit-album-cover').value = '';
+    renderPhotoList(photos.length > 0 ? photos : [{url:'',caption:''}]);
+    document.getElementById('edit-panel').style.display = 'block';
+    document.getElementById('edit-panel').scrollIntoView({ behavior: 'smooth' });
+  });
+
+  // ===== 取消 =====
+  document.getElementById('btn-cancel').addEventListener('click', () => {
+    document.getElementById('edit-panel').style.display = 'none';
+  });
+
+  // ===== 保存（创建/更新） =====
+  document.getElementById('btn-save').addEventListener('click', async () => {
+    const token = getToken();
+    if (!token) return toast('请先填写 GitHub Token', 'error');
+
+    const title = document.getElementById('edit-album-title').value.trim() || '未命名相册';
+    const date = document.getElementById('edit-album-date').value || today;
+    const cover = document.getElementById('edit-album-cover').value.trim();
+    const photos = getPhotoData();
+    const existingSlug = document.getElementById('edit-slug').value;
+
+    if (photos.length === 0) return toast('请至少添加一张照片', 'error');
+
+    // 构建 YAML
+    let yaml = '---\ntitle: "' + title.replace(/"/g, '\\"') + '"\ndate: ' + date + '\nphotos:\n';
+    photos.forEach(p => {
+      yaml += '  - url: "' + p.url.replace(/"/g, '\\"') + '"\n';
+      if (p.caption) yaml += '    caption: "' + p.caption.replace(/"/g, '\\"') + '"\n';
+    });
+    if (cover) yaml += 'cover: "' + cover.replace(/"/g, '\\"') + '"\n';
+    yaml += '---\n';
+
+    const slug = title.replace(/[^一-龥a-zA-Z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '').substring(0, 30);
+    const filepath = FILE_PREFIX + slug + '.md';
+    const oldFilepath = existingSlug ? FILE_PREFIX + existingSlug + '.md' : null;
+
+    toast('正在保存...', 'loading');
+
+    try {
+      // 获取旧文件 SHA（如果是编辑）
+      let sha = null;
+      if (oldFilepath) {
+        try {
+          const res = await fetch('https://api.github.com/repos/' + REPO + '/contents/' + oldFilepath, {
+            headers: { Authorization: 'Bearer ' + token, Accept: 'application/vnd.github.v3+json' }
+          });
+          if (res.ok) { const info = await res.json(); sha = info.sha; }
+        } catch {}
+      }
+
+      // 如果 slug 变了（重命名），需要删除旧文件
+      if (existingSlug && oldFilepath !== filepath) {
+        // 先创建新文件
+        const createBody = {
+          message: '相册: ' + title,
+          content: btoa(unescape(encodeURIComponent(yaml))),
+          branch: BRANCH,
+        };
+        const createRes = await fetch('https://api.github.com/repos/' + REPO + '/contents/' + filepath, {
+          method: 'PUT', headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json', Accept: 'application/vnd.github.v3+json' },
+          body: JSON.stringify(createBody),
+        });
+        if (!createRes.ok) throw new Error('创建失败: ' + createRes.status);
+
+        // 删除旧文件
+        if (sha && oldFilepath !== filepath) {
+          await fetch('https://api.github.com/repos/' + REPO + '/contents/' + oldFilepath, {
+            method: 'DELETE', headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json', Accept: 'application/vnd.github.v3+json' },
+            body: JSON.stringify({ message: '重命名: ' + title, sha: sha, branch: BRANCH }),
+          });
+        }
+      } else {
+        // 新建或覆盖
+        const body = {
+          message: existingSlug ? '更新相册: ' + title : '新建相册: ' + title,
+          content: btoa(unescape(encodeURIComponent(yaml))),
+          branch: BRANCH,
+        };
+        if (sha) body.sha = sha;
+        const res = await fetch('https://api.github.com/repos/' + REPO + '/contents/' + filepath, {
+          method: 'PUT', headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json', Accept: 'application/vnd.github.v3+json' },
+          body: JSON.stringify(body),
+        });
+        if (!res.ok) throw new Error(res.status + ': ' + (await res.text()).substring(0, 100));
+      }
+
+      toast('已保存！部署中，稍后刷新查看...', 'success');
+      document.getElementById('edit-panel').style.display = 'none';
+      setTimeout(() => location.reload(), 2500);
+    } catch(e) {
+      toast('保存失败: ' + e.message, 'error');
+    }
+  });
+
+  // ===== 删除（事件委托） =====
+  document.getElementById('gallery-list').addEventListener('click', async (e) => {
+    const btn = e.target.closest('.btn-del');
+    if (!btn) return;
+    const slug = btn.dataset.slug;
+    if (!confirm('确定要删除这个相册吗？')) return;
+
+    const token = getToken();
+    if (!token) return toast('请先填写 GitHub Token', 'error');
+
+    const filepath = FILE_PREFIX + slug + '.md';
+    toast('正在删除...', 'loading');
+
+    try {
+      const infoRes = await fetch('https://api.github.com/repos/' + REPO + '/contents/' + filepath, {
+        headers: { Authorization: 'Bearer ' + token, Accept: 'application/vnd.github.v3+json' }
+      });
+      if (infoRes.status === 404) return toast('文件不存在', 'error');
+      if (!infoRes.ok) throw new Error(infoRes.status);
+      const info = await infoRes.json();
+
+      const delRes = await fetch('https://api.github.com/repos/' + REPO + '/contents/' + filepath, {
+        method: 'DELETE',
+        headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json', Accept: 'application/vnd.github.v3+json' },
+        body: JSON.stringify({ message: '删除相册: ' + slug, sha: info.sha, branch: BRANCH }),
+      });
+      if (!delRes.ok) throw new Error(delRes.status);
+
+      toast('已删除！部署中...', 'success');
+      // 从 DOM 移除
+      const section = document.querySelector(`.gallery-section[data-slug="${slug}"]`);
+      if (section) section.remove();
+      if (!document.querySelector('.gallery-section')) {
+        document.getElementById('empty-state').style.display = 'block';
+      }
+    } catch(e) {
+      toast('删除失败: ' + e.message, 'error');
+    }
+  });
+</script>
